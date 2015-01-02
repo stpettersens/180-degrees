@@ -26,14 +26,14 @@ class ClassLoader {
 
 	vector<BYTE> readClassBytes() {
 		ifstream ifs(the_class, ios::binary|ios::ate);
-    		ifstream::pos_type pos = ifs.tellg();
+    	ifstream::pos_type pos = ifs.tellg();
 
-    		vector<BYTE> bytes(pos);
+    	vector<BYTE> bytes(pos);
 
-    		ifs.seekg(0, ios::beg);
-    		ifs.read(&bytes[0], pos);
+    	ifs.seekg(0, ios::beg);
+    	ifs.read(&bytes[0], pos);
 
-    		return bytes;
+    	return bytes;
 	}
 
 	/*
