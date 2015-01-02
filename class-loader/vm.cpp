@@ -14,8 +14,6 @@ Please see LICENSE file.
 
 using namespace std;
 
-typedef char BYTE;
-
 int main() {
 	//cout << "Usage: vm <classFile>" << endl;
 
