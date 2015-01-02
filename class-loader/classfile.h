@@ -17,7 +17,7 @@ class ClassFile {
 	int minor_version;
 	int major_version;
 	int constant_pool_count;
-	vector<string> constant_pool;
+	vector<vector<string>> constant_pool;
 	int cp_size;
 	int access_flags;
 	int this_class;
@@ -78,7 +78,7 @@ public:
 	int getCPCOUNT() {
 		return constant_pool_count;
 	}
-	void pushToConstantPool(string constValPair) {
+	void pushToConstantPool(vector<string> constValPair) {
 		constant_pool.push_back(constValPair); // Possibly make this a String[2] array.
 	}
 	void setCPSIZE(int cpSize) {
