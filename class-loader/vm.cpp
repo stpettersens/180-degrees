@@ -10,7 +10,6 @@ Please see LICENSE file.
 */
 
 #include <iostream>
-#include <fstream>
 #include "classloader.h"
 
 using namespace std;
