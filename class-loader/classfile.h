@@ -13,7 +13,7 @@ using std::vector;
 
 class ClassFile {
 
-	unsigned int magic;
+	int magic;
 	int minor_version;
 	int major_version;
 	int constant_pool_count;
