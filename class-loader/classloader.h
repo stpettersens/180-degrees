@@ -22,6 +22,7 @@ Please see LICENSE file.
 using namespace std;
 
 typedef char BYTE;
+typedef unsigned short USHORT;
 
 class ClassLoader {
 
@@ -39,6 +40,16 @@ class ClassLoader {
     	ifs.read(&bytes[0], pos);
 
     	return bytes;
+	}
+
+	/**
+	  * Strip leading 2 'F's off a hexdecimal value.
+	*/
+	string stripFs(string hex) {
+		for(int i = 0; i < 2; ++i) {
+			boost::replace_first(hex, "f", "");
+		}
+		return hex;
 	}
 
 	/**
@@ -60,9 +71,7 @@ class ClassLoader {
 			if(base == 16 && magic) {
 				// Strip out the 2 leading 'F's in 0xFFCAFEBABE
 				// to become 0xCAFEBABE. Hackish, but it works.
-				for(int j = 0; j < 2; ++j) {
-					boost::replace_first(s, "f", "");
-				}
+				s = stripFs(s);
 			}
 			fvalue += s;
 		}
@@ -83,8 +92,8 @@ class ClassLoader {
 	 		array.push_back(data1 + "," + data2);
 	 	}
 	 	cout << "tag: " << array.at(0) << endl;
-	 	cout << "dt1: " << array.at(1) << endl;
-	 	cout << "dt2: " << array.at(2) << endl;
+	 	cout << ">>>: " << array.at(1) << endl;
+	 	cout << endl;
 	 	return array;
 	}
 
@@ -135,30 +144,130 @@ class ClassLoader {
 	}
 
 	/**
+	  * Get a hexadecimal value for a classfile byte offset.
+	*/
+	string getHexadecimalValue(int i, int length) {
+		string value = "";
+		int z = 2;
+		for(int j = 0; j < length; ++j) {
+			if((USHORT)classContents[i+z] == 1 || (USHORT)classContents[i+z] == 3 || (USHORT)classContents[i+z] == 4 ||
+			(USHORT)classContents[i+z] == 5 || (USHORT)classContents[i+z] == 6 || (USHORT)classContents[i+z] == 7 ||
+			(USHORT)classContents[i+z] == 8 || (USHORT)classContents[i+z] == 9 || (USHORT)classContents[i+z] == 10) {
+				break;	
+			}
+			stringstream sstream;
+			sstream << hex << (USHORT)classContents.at(i+z);
+			string s = sstream.str();
+
+			s = stripFs(s);
+			value += s;
+			++z;
+		}
+		return value;
+	}
+
+	/**
+	  * Get hexdecimal values for a classfile byte offset.
+	*/
+	vector<string> getHexadecimalValues(int i, int length) {
+		vector<string> values;
+		int z = 2;
+		for(int j = 0; j < length; ++j) {
+			if((USHORT)classContents[i+z] == 1 || (USHORT)classContents[i+z] == 3 || (USHORT)classContents[i+z] == 4 ||
+			(USHORT)classContents[i+z] == 5 || (USHORT)classContents[i+z] == 6 || (USHORT)classContents[i+z] == 7 ||
+			(USHORT)classContents[i+z] == 8 || (USHORT)classContents[i+z] == 9 || (USHORT)classContents[i+z] == 10) {
+				break;	
+			}
+			stringstream sstream;
+			sstream << hex << (USHORT)classContents.at(i+z);
+			string s = sstream.str();
+
+			s = stripFs(s);
+			values.push_back(s);
+			++z;
+		}
+		return values;
+	}
+
+	/**
 	  * Set contant pool table for classfile.
 	*/
 	 void setConstantPoolTable() {
 	 	vector<string> constPoolTable;
 	 	int n = 10;
 	 	int x = 1;
-	 	int y = 14;
+	 	int y = 29;
 
 	 	for(int i = n; i < y; ++i) {
 
-	 		string tag = cf.getTag((int) classContents.at(i));
-	 		cout << tag << endl;
+	 		cout << "Tag value is: " << dec << (int)classContents.at(i) << endl;
+	 		string tag = cf.getTag((int)classContents.at(i));
 	 		vector<string> object;
+
 	 		if(strcmp(tag.c_str(), "Methodref") == 0) {
-	 			cout << (int) classContents.at(i+2) << endl;
-	 			cout << (int) classContents.at(i+4) << endl;
+	 			int byte1 = (int)classContents.at(i+2);
+	 			int byte2 = (int)classContents.at(i+4);
 	 			classContents.at(i+2) = 0; // Set byte to 0 to prevent re-read of byte
 	 			classContents.at(i+4) = 0;
-	 			//object = setConstantPoolArray(tag, byte1, byte2);
+	 			object.clear();
+	 			object = setConstantPoolArray(tag, to_string(byte1), to_string(byte2));
 	 			cf.setCPSIZE(5);
 	 		}
-	 		/*else if(strcmp(tag.c_str(), "Class") == 0) {
+	 		else if(strcmp(tag.c_str(), "Class") == 0) {
+	 			object.clear();
+	 			object = setConstantPoolArray(tag, to_string((int)classContents.at(i+2)), "");
+	 			classContents.at(i+2) = 0;
+	 			cf.setCPSIZE(3);
+	 		}
+	 		else if(strcmp(tag.c_str(), "Integer") == 0) {
+	 			int integer = stoi(getHexadecimalValue(i, 4), 0, 16);
 
-	 		}*/
+	 			// *************************************************************
+	 			cout << "Integer is: " << integer << 
+	 			" (hex: " << hex << integer << ")" << endl << endl;
+	 			// *************************************************************
+	 	
+	 			classContents.at(i+1) = 0;
+	 			classContents.at(i+2) = 0;
+	 			classContents.at(i+3) = 0;
+	 			classContents.at(i+4) = 0;
+	 			object.clear();
+	 			object = setConstantPoolArray(tag, to_string(integer), "");
+	 			cf.setCPSIZE(5);
+	 		}
+	 		else if(strcmp(tag.c_str(), "String") == 0) {
+	 			object.clear();
+	 			object = setConstantPoolArray(tag, to_string((int)classContents.at(i+2)), "");
+	 			cf.setCPSIZE(3);
+	 		}
+	 		else if(strcmp(tag.c_str(), "NameAndType") == 0) {
+	 			int byte1 = (int)classContents.at(i+2);
+	 			int byte2 = (int)classContents.at(i+4);
+	 			object = setConstantPoolArray(tag, to_string(byte1), to_string(byte2));
+	 			cf.setCPSIZE(5);
+	 		}
+	 		else if(strcmp(tag.c_str(), "Utf8") == 0) {
+	 			int utf8ByteLength = 2;
+	 			int size = (int)classContents.at(i+2);
+	 			classContents.at(i+2) = 0;
+	 			vector<string> values = getHexadecimalValues(i+1, size);
+	 			string utf8 = "";
+	 			for(int z = 0; z < values.size(); ++z) {
+	 				utf8 += getUTF8Char(stoi(values.at(z), 0, 16));
+	 				++utf8ByteLength;
+	 			}
+
+	 			// *********************************************************
+	 			cout << "Utf8 string is: " << "\"" << utf8 << "\"" << endl;
+	 			cout << endl;
+	 			// *********************************************************
+
+	 			if(utf8.length() > 2) {
+	 				object.clear();
+	 				object = setConstantPoolArray(tag, utf8, "");
+	 				cf.setCPSIZE(utf8ByteLength);
+	 			}
+	 		}
 	 	}
 	 }
 
@@ -171,9 +280,9 @@ public:
 		the_class = claSS;
 		classContents = readClassBytes();
 		setMagicNumber();
-		cout << cf.getMagicNumber() << endl; // !
+		cout << "Magic number (hex) = " << cf.getMagicNumber() << endl; // !
 		if(cf.checkMagicNumber()) {
-			cout << "Classfile OK..." << endl;
+			cout << endl;
 			setMinorVersion();
 			setMajorVersion();
 			setConstantPoolCount();
