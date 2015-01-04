@@ -135,13 +135,6 @@ class ClassLoader {
 	}
 
 	/**
-	  * Set constant pool size for classfile.
-	*/
-	 void setCPSIZE(int tagSize) {
-	 	cf.setCPSIZE(tagSize);
-	 }
-
-	/**
 	  * Set contant pool table for classfile.
 	*/
 	 void setConstantPoolTable() {
@@ -161,7 +154,7 @@ class ClassLoader {
 	 			classContents.at(i+2) = 0; // Set byte to 0 to prevent re-read of byte
 	 			classContents.at(i+4) = 0;
 	 			//object = setConstantPoolArray(tag, byte1, byte2);
-	 			setCPSIZE(5);
+	 			cf.setCPSIZE(5);
 	 		}
 	 		/*else if(strcmp(tag.c_str(), "Class") == 0) {
 
