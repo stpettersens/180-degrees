@@ -6,6 +6,8 @@ Copyright 2015 Sam Saint-Pettersen
 Released under the MIT/X11 License.
 Please see LICENSE file.
 */
+
+#include <cstring>
 #include <string>
 #include <vector>
 using std::string;
@@ -13,12 +15,12 @@ using std::vector;
 
 class ClassFile {
 
-	int magic;
+	string magic;
 	int minor_version;
 	int major_version;
 	int constant_pool_count;
 	vector<vector<string>> constant_pool;
-	int cp_size;
+	vector<int> cp_size;
 	int access_flags;
 	int this_class;
 	int super_class;
@@ -35,12 +37,12 @@ class ClassFile {
 public:
 
 	ClassFile() { // Constructor for ClassFile.
-		magic = 0;
+		magic = "";
 		minor_version = 0;
 		major_version = 0;
 		constant_pool_count = 0;
 		//constant_pool();
-		cp_size = 0;
+		//cp_size();
 		access_flags = 0;
 		this_class = 0;
 		super_class = 0;
@@ -52,25 +54,31 @@ public:
 		//methods();
 		attributes_count = 0;
 		//attributes();
-		tags = { "", "Utf8", "", "Integer", "Float", "Long", "Double", "Class", "String", "Fieldref", \
+		tags = { "Null", "Utf8", "Null", "Integer", "Float", "Long", "Double", "Class", "String", "Fieldref", \
 		"Methodref", "InterfaceMethodref", "NameAndType" };
 	}
-	void setMagicNumber(long magicNum) {
+	void setMagicNumber(string magicNum) {
 		magic = magicNum;
 	}
-	long getMagicNumber() {
+	string getMagicNumber() {
 		return magic;
 	}
 	bool checkMagicNumber() {
 		bool isMagic = false;
-		if(magic == 0xCAFEBABE) isMagic = true;
+		if(strcmp(magic.c_str(), "cafebabe") == 0) isMagic = true;
 		return isMagic;
 	}
 	void setMinorVersion(int minorVer) {
 		minor_version = minorVer;
 	}
+	int getMinorVersion() {
+		return minor_version;
+	}
 	void setMajorVersion(int majorVer) {
 		major_version = majorVer;
+	}
+	int getMajorVersion() {
+		return major_version;
 	}
 	void setConstantPoolCount(int cpCount) {
 		constant_pool_count = cpCount;
@@ -81,11 +89,15 @@ public:
 	void pushToConstantPool(vector<string> constValPair) {
 		constant_pool.push_back(constValPair); // Possibly make this a String[2] array.
 	}
-	void setCPSIZE(int cpSize) {
-		cp_size = cpSize;
+	void setCPSIZE(int tagSize) {
+		cp_size.push_back(tagSize);
 	}
 	int getCPSIZE() {
-		return cp_size;
+		int f_cpsize = 0;
+		for(int i = 0; i <= cp_size.size(); ++i) {
+			f_cpsize += cp_size.at(i);
+		}
+		return f_cpsize;
 	}
 	void setAccessFlags(int accessFlags) {
 		access_flags = accessFlags;

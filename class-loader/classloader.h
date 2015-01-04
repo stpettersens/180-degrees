@@ -12,9 +12,11 @@ Please see LICENSE file.
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
+#include <cstring>
 #include <string>
 #include <vector>
-#include <boost/algorithm/string/replace.hpp>
+#include "boost/algorithm/string/replace.hpp"
 #include "classfile.h"
 
 using namespace std;
@@ -39,35 +41,38 @@ class ClassLoader {
     	return bytes;
 	}
 
-	/*
+	/**
 	 * Set a section of the loaded Java classfile stored object (cf).
 	*/
-	string setClassSection(int start, int end, bool magic) {
+	string setClassSection(int start, int end, int base, bool magic) {
 		string fvalue = "";
 		vector<unsigned short> value;
 		for (int i = start; i < end; ++i)
 		{
 			unsigned short x = (unsigned short) classContents.at(i);
-			cout << hex << x << endl;
-			cout << dec << x << endl;
 			value.push_back(x);
 		}
-		cout << value.size() << endl;
 		for(int i = 0; i < value.size(); ++i) {
 			stringstream sstream;
-			sstream << hex << value.at(i);
+			if(base == 16) sstream << hex << value.at(i);
+			if(base == 10) sstream << dec << value.at(i);
 			string s = sstream.str();
-			cout << s << endl;
-			if(magic) boost::replace_all(s, "f", "");
+			if(base == 16 && magic) {
+				// Strip out the 2 leading 'F's in 0xFFCAFEBABE
+				// to become 0xCAFEBABE. Hackish, but it works.
+				for(int j = 0; j < 2; ++j) {
+					boost::replace_first(s, "f", "");
+				}
+			}
+			fvalue += s;
 		}
-		cout << fvalue << endl;
 		return fvalue;
 	}
 
 	/*
 	 * Set and return a constant pool array (vector).
 	*/
-	vector<string> setConstPoolArray(string tag, string data1, string data2) {
+	vector<string> setConstantPoolArray(string tag, string data1, string data2) {
 	 	vector<string> array;
 	 	if(data2 == "") {
 	 		array.push_back(tag);
@@ -77,6 +82,9 @@ class ClassLoader {
 	 		array.push_back(tag);
 	 		array.push_back(data1 + "," + data2);
 	 	}
+	 	cout << "tag: " << array.at(0) << endl;
+	 	cout << "dt1: " << array.at(1) << endl;
+	 	cout << "dt2: " << array.at(2) << endl;
 	 	return array;
 	}
 
@@ -98,39 +106,89 @@ class ClassLoader {
 	  * Set magic number for loaded Java classfile.
 	*/
 	void setMagicNumber() {
-		string magic = setClassSection(0, 4, true);
-		//cf.setMagicNumber(stoi(magic)); //stoi(magic));
+		string magic = setClassSection(0, 4, 16, true);
+		cf.setMagicNumber(magic);
 	}
 
 	/**
-	  * Check that set magic number is 0xCAFEBABE.
-	  * Return true or display error message and exit.
+	  * Set minor classfile version (e.g. 0).
 	*/
-	bool checkMagicNumber() {
-		bool isValid = false;
-		if(cf.checkMagicNumber()) isValid = true;
-		return isValid;
+	void setMinorVersion() {
+		string majorVer = setClassSection(4, 6, 10, false);
+		cf.setMinorVersion(stoi(majorVer));
 	}
+
+	/**
+	  * Set major classfile version (e.g. 51).
+	*/
+	void setMajorVersion() {
+		string minorVer = setClassSection(6, 8, 10, false);
+		cf.setMajorVersion(stoi(minorVer));
+	}
+
+	/**
+	  * Set constant pool count for classfile.
+	*/
+	void setConstantPoolCount() {
+		string constPoolCount = setClassSection(8, 10, 10, false);
+		cf.setConstantPoolCount(stoi(constPoolCount));
+	}
+
+	/**
+	  * Set constant pool size for classfile.
+	*/
+	 void setCPSIZE(int tagSize) {
+	 	cf.setCPSIZE(tagSize);
+	 }
+
+	/**
+	  * Set contant pool table for classfile.
+	*/
+	 void setConstantPoolTable() {
+	 	vector<string> constPoolTable;
+	 	int n = 10;
+	 	int x = 1;
+	 	int y = 14;
+
+	 	for(int i = n; i < y; ++i) {
+
+	 		string tag = cf.getTag((unsigned short) classContents.at(i));
+	 		cout << tag << endl;
+	 		vector<string> object;
+	 		if(strcmp(tag.c_str(), "Methodref") == 0) {
+	 			cout << (unsigned short) classContents.at(i+2) << endl;
+	 			cout << (unsigned short) classContents.at(i+4) << endl;
+	 			classContents.at(i+2) = 0; // Set byte to 0 to prevent re-read of byte
+	 			classContents.at(i+4) = 0;
+	 			//object = setConstantPoolArray(tag, byte1, byte2);
+	 			setCPSIZE(5);
+	 		}
+	 		/*else if(strcmp(tag.c_str(), "Class") == 0) {
+
+	 		}*/
+	 	}
+	 }
 
 public:
 
-	/*
-	 * Load a Java classfile and dump loaded structure if specified.
+	/**
+	  * Load a Java classfile and dump loaded structure if specified.
 	*/
 	void load(string claSS, bool dump) {
 		the_class = claSS;
 		classContents = readClassBytes();
 		setMagicNumber();
-	}
-
-	int getClassByte() {
-		return (unsigned short) classContents.at(7);
-	}
-
-	/**
-	  * Get the set magic number for loaded Java classfile.
-	*/
-	long getMagicNumber() {
-		return cf.getMagicNumber();
+		cout << cf.getMagicNumber() << endl; // !
+		if(cf.checkMagicNumber()) {
+			cout << "Classfile OK..." << endl;
+			setMinorVersion();
+			setMajorVersion();
+			setConstantPoolCount();
+			setConstantPoolTable();
+		}
+		else {
+			cout << "Invalid Java classfile. Terminating now..." << endl;
+			exit(-1);
+		}
 	}
 };
