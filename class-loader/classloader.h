@@ -152,12 +152,12 @@ class ClassLoader {
 
 	 	for(int i = n; i < y; ++i) {
 
-	 		string tag = cf.getTag((unsigned short) classContents.at(i));
+	 		string tag = cf.getTag((int) classContents.at(i));
 	 		cout << tag << endl;
 	 		vector<string> object;
 	 		if(strcmp(tag.c_str(), "Methodref") == 0) {
-	 			cout << (unsigned short) classContents.at(i+2) << endl;
-	 			cout << (unsigned short) classContents.at(i+4) << endl;
+	 			cout << (int) classContents.at(i+2) << endl;
+	 			cout << (int) classContents.at(i+4) << endl;
 	 			classContents.at(i+2) = 0; // Set byte to 0 to prevent re-read of byte
 	 			classContents.at(i+4) = 0;
 	 			//object = setConstantPoolArray(tag, byte1, byte2);
