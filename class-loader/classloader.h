@@ -57,10 +57,10 @@ class ClassLoader {
 	*/
 	string setClassSection(int start, int end, int base, bool magic) {
 		string fvalue = "";
-		vector<unsigned short> value;
+		vector<USHORT> value;
 		for (int i = start; i < end; ++i)
 		{
-			unsigned short x = (unsigned short) classContents.at(i);
+			USHORT x = (USHORT) classContents.at(i);
 			value.push_back(x);
 		}
 		for(int i = 0; i < value.size(); ++i) {
