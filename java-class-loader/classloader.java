@@ -9,7 +9,7 @@ Released under the MIT/X11 License.
 Please see LICENSE file.
 
 */
-//package io.stpettersen.classloader;
+//package
 
 import java.util.ArrayList;
 import java.io.FileInputStream;
@@ -55,10 +55,44 @@ class ClassLoader {
 		for(int i = 0; i < value.size(); ++i) {
 			String s = "";
 			if(base == 16) s = Integer.toHexString(value.get(i));
-			if(base == 10) s = String.format("%s", value.get(i));
+			if(base == 10) s = String.format("%d", value.get(i));
 			fvalue += s;
 		}
 		return fvalue;
+	}
+
+	/**
+	 * Set and return a constant pool array (ArrayList).
+	*/
+	ArrayList<String> setConstantPoolArray(String tag, String data1, String data2) {
+		ArrayList<String> array = new ArrayList<String>();
+		if(data2 == "") {
+			array.add(tag);
+			array.add(data1);
+		}
+		else {
+			array.add(tag);
+			array.add(data1 + "," + data2);
+		}
+		System.out.println(String.format("tag: %s", array.get(0)));
+		if(tag == "Integer") System.out.println(String.format(">>> %d\n", Integer.parseInt(array.get(1), 16)));
+		else System.out.println(String.format(">>> %s\n", array.get(1)));
+		return array;
+	}
+
+	/**
+	 * Get UTF-8 character for decimal integer value.
+	*/
+	char getUTF8Char(int dec) {
+		return (char)dec;
+	}
+
+	String lookupMnemonicInstruction(int bytecode) {
+		return lookupMnemonicInstruction(String.format("%d", bytecode));
+	}
+
+	String lookupMnemonicInstruction(String bytecode) {
+		return "instruction"; // TODO
 	}
 
 	/**
@@ -71,14 +105,202 @@ class ClassLoader {
 	}
 
 	/**
+	 * Set minor classfile version (e.g. 0).
+	*/
+	void setMinorVersion() {
+		String minorVer = setClassSection(4, 6, 10, false);
+		cf.setMinorVersion(Integer.parseInt(minorVer));
+	}
+
+	/**
+	 * Set major classfile version (e.g. 51).
+	*/
+	void setMajorVersion() {
+		String majorVer = setClassSection(6, 8, 10, false);
+		cf.setMajorVersion(Integer.parseInt(majorVer));
+	}
+
+	/**
+	 * Set constant pool count for classfile.
+	*/
+	void setConstantPoolCount() {
+		String constPoolCount = setClassSection(8, 10, 10, false);
+		cf.setConstantPoolCount(Integer.parseInt(constPoolCount));
+	}
+
+	/**
+	 * Get a hexadecimal value for a classfile byte offset.
+	*/
+	String getHexadecimalValue(int i, int length) {
+		String value = "";
+		int z = 2;
+		for(int j = 0; j < length; ++j) {
+			if(classContents.get(i+z) >= 1 && classContents.get(i+z) < 11) {
+				break;
+			}
+			String s = Integer.toHexString(classContents.get(i+z));
+			value += s;
+			++z;
+		}
+		return value;
+	}
+
+	/**
+	 * Get a hexadecimal values for a classfile byte offset.
+	*/
+	ArrayList<String> getHexadecimalValues(int i, int length) {
+		ArrayList<String> values = new ArrayList<String>();
+		int z = 2;
+		for(int j = 0; j < length; ++j) {
+			if(classContents.get(i+z) >= 1 && classContents.get(i+z) < 11) {
+				break;
+			}
+			String s = Integer.toHexString(classContents.get(i+z));
+			values.add(s);
+			++z;
+		}
+		return values;	
+	}
+
+	/**
+	 * Set constant pool table for classfile.
+	*/
+	void setConstantPoolTable() {
+
+		ArrayList<String> constPoolTable = new ArrayList<String>();
+		int n = 10;
+		int x = 1;
+		int y = 29;
+
+		for(int i = n; i < y; ++i) {
+
+			String tag = cf.getTag(classContents.get(i));
+			ArrayList<String> object = new ArrayList<String>();
+
+			switch(tag) {
+
+				case "Methodref":
+					int byte1 = classContents.get(i+2);
+					int byte2 = classContents.get(i+4);
+					classContents.set(i+2, 0); // Set byte to 9 to prevent re-read of byte.
+					classContents.set(i+4, 0);
+					String sbyte1 = String.format("%d", byte1);
+					String sbyte2 = String.format("%d", byte2);
+					object.clear();
+					object = setConstantPoolArray(tag, sbyte1, sbyte2);
+					cf.setCPSIZE(5);
+					break;
+
+				case "Class":
+					String sbyte = String.format("%d", classContents.get(i+2));
+					object.clear();
+					object = setConstantPoolArray(tag, sbyte, "");
+					classContents.set(i+2, 0);
+					cf.setCPSIZE(3);
+					break;
+
+				case "Integer":
+
+					int integer = Integer.parseInt(getHexadecimalValue(i, 4), 16);
+					String sint = Integer.toHexString(integer);
+
+					// *******************************************************************************
+					System.out.println(String.format("Integer is: %d (hex: %s)\n", integer, sint));
+					// *******************************************************************************
+
+					for(int r = 1; r <= 4; ++r) {
+						classContents.set(i+r, 0);
+					}
+	 		
+					object.clear();
+					object = setConstantPoolArray(tag, sint, "");
+					cf.setCPSIZE(5);
+					break;
+
+				case "String":
+					String str = String.format("%s", classContents.get(i+2));
+					object.clear();
+					object = setConstantPoolArray(tag, str, "");
+					cf.setCPSIZE(3);
+					break;
+
+				case "NameAndType":
+					int byteA = classContents.get(i+2);
+					int byteB = classContents.get(i+4);
+					String sbyteA = String.format("%d", byteA);
+					String sbyteB = String.format("%d", byteB);
+					classContents.set(i+2, 0);
+					classContents.set(i+4, 0);
+					object.clear();
+					object = setConstantPoolArray(tag, sbyteA, sbyteB);
+					cf.setCPSIZE(5);
+					break;
+
+				case "Utf8":
+					int utf8ByteLength = 2;
+					int size = classContents.get(i+2);
+					//classContents.set(i+2, 0);
+					ArrayList<String> values = getHexadecimalValues(i+1, size);
+					String utf8 = "";
+					for(int z = 0; z < values.size(); ++z) {
+						utf8 += getUTF8Char(Integer.parseInt(values.get(z), 16));
+						++utf8ByteLength;
+						++i;
+					}
+
+					// ******************************************************************
+					System.out.println(String.format("Utf8 string is: \"%s\"", utf8));
+					System.out.println("");
+					// ******************************************************************
+
+					if(utf8.length() > 2) {
+						object.clear();
+						object = setConstantPoolArray(tag, utf8, "");
+						cf.setCPSIZE(utf8ByteLength);
+					}
+			}
+		}
+	}
+
+	ClassLoader() { // Constructor for ClassLoader.
+		cf = new ClassFile();
+	}
+
+	/**
 	 * Load a Java classfile and dump  loaded structure if specified.
 	*/
 	void load(String claSS, boolean dump) {
 		the_class = claSS;
 		classContents = readClassBytes();
-		System.out.println(Integer.toHexString(classContents.get(0)));
-		long coffee = Long.parseLong("cafebabe", 16);
-		System.out.println(coffee);
-		System.out.println(Long.toHexString(coffee));
+		setMagicNumber();
+
+		// ****************************************************************************************
+		long magic = cf.getMagicNumber();
+		String hmagic = Long.toHexString(magic);
+		System.out.println(String.format("\nMagic number (hex) = %s (dec: %d)", hmagic, magic));
+		// ****************************************************************************************
+
+		if(cf.checkMagicNumber()) {
+			System.out.println("");
+			setMinorVersion();
+			setMajorVersion();
+
+			// *****************************************************************************************
+			int minorVer = cf.getMinorVersion();
+			String hminorVer = Integer.toHexString(minorVer);
+			System.out.println(String.format("Minor version = %d (hex: %s)", minorVer, hminorVer));
+
+			int majorVer = cf.getMajorVersion();
+			String hmajorVer = Integer.toHexString(majorVer);
+			System.out.println(String.format("Major version = %d (hex: %s)\n", majorVer, hmajorVer));
+			// *****************************************************************************************
+
+			setConstantPoolCount();
+			setConstantPoolTable();
+		}
+		else {
+			System.out.println("Invalid Java classfile. Terminating now...");
+			System.exit(-1);
+		}
 	}
 }

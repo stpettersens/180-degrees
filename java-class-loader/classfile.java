@@ -9,7 +9,7 @@ Released under the MIT/X11 License.
 Please see LICENSE file.
 
 */
-//package io.stpettersen.classloader;
+//package
 
 import java.util.ArrayList;
 
@@ -39,6 +39,7 @@ class ClassFile {
 		minor_version = 0;
 		major_version = 0;
 		constant_pool_count = 0;
+		cp_size = new ArrayList<Integer>();
 		access_flags = 0;
 		this_class = 0;
 		super_class = 0;
@@ -68,7 +69,8 @@ class ClassFile {
 	}
 	boolean checkMagicNumber() {
 		boolean isMagic = false;
-		if(magic == 0xCAFEBABE) isMagic = true;
+		// 0xCAFEBABE = 3405691582L
+		if(magic == 3405691582L) isMagic = true;
 		return isMagic;
 	}
 	void setMinorVersion(int minorVer) {
@@ -79,6 +81,9 @@ class ClassFile {
 	}
 	void setMajorVersion(int majorVer) {
 		major_version = majorVer;
+	}
+	int getMajorVersion() {
+		return major_version;
 	}
 	void setConstantPoolCount(int cpCount) {
 		constant_pool_count = cpCount;
@@ -110,5 +115,52 @@ class ClassFile {
 	}
 	int getThisClass() {
 		return this_class;
+	}
+	void setSuperClass(int superClass) {
+		super_class = superClass;
+	}
+	int getSuperClass() {
+		return super_class;
+	}
+	void setInterfacesCount(int interfacesCount) {
+		interfaces_count = interfacesCount;
+	}
+	int getInterfacesCount() {
+		return interfaces_count;
+	}
+	void pushInterface(String _interface) {
+		interfaces.add(_interface);
+	}
+	void setFieldsCount(int fieldsCount) {
+		fields_count = fieldsCount;
+	}
+	int getFieldsCount() {
+		return fields_count;
+	}
+	void pushField(String field) {
+		fields.add(field);
+	}
+	void setMethodsCount(int methodsCount) {
+		methods_count = methodsCount;
+	}
+	int getMethodsCount() {
+		return methods_count;
+	}
+	void pushMethod(String method) {
+		methods.add(method);
+	}
+	void setAttributesCount(int attribCount) {
+		attributes_count = attribCount;
+	}
+	int getAttributesCount() {
+		return attributes_count;
+	}
+	void pushAttribute(String attribute) {
+		attributes.add(attribute);
+	}
+	String getTag(int index) {
+		String rtag = "Invalid tag index";
+		if(index != 0 || index != 2) rtag = tags[index];
+		return rtag;
 	}
 }

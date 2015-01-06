@@ -9,7 +9,7 @@ Released under the MIT/X11 License.
 Please see LICENSE file.
 
 */
-//package io.stpettersen.classloader;
+//package
 
 class VM {
 
@@ -18,6 +18,7 @@ class VM {
 	private static void displayVersion() {
 
 		System.out.println("Java \"VM\" v. " + version + "\n");
+		System.exit(0);
 	}
 
 	public static void main(String[] args) {

@@ -126,16 +126,16 @@ class ClassLoader {
 	  * Set minor classfile version (e.g. 0).
 	*/
 	void setMinorVersion() {
-		string majorVer = setClassSection(4, 6, 10, false);
-		cf.setMinorVersion(stoi(majorVer));
+		string minorVer = setClassSection(4, 6, 10, false);
+		cf.setMinorVersion(stoi(minorVer));
 	}
 
 	/**
 	  * Set major classfile version (e.g. 51).
 	*/
 	void setMajorVersion() {
-		string minorVer = setClassSection(6, 8, 10, false);
-		cf.setMajorVersion(stoi(minorVer));
+		string majorVer = setClassSection(6, 8, 10, false);
+		cf.setMajorVersion(stoi(majorVer));
 	}
 
 	/**
@@ -209,7 +209,7 @@ class ClassLoader {
 	 		if(strcmp(tag.c_str(), "Methodref") == 0) {
 	 			int byte1 = (int)classContents.at(i+2);
 	 			int byte2 = (int)classContents.at(i+4);
-	 			classContents.at(i+2) = 0; // Set byte to 0 to prevent re-read of byte
+	 			classContents.at(i+2) = 0; // Set byte to 0 to prevent re-read of byte.
 	 			classContents.at(i+4) = 0;
 	 			object.clear();
 	 			object = setConstantPoolArray(tag, to_string(byte1), to_string(byte2));
@@ -228,11 +228,11 @@ class ClassLoader {
 	 			cout << "Integer is: " << dec << integer << 
 	 			" (hex: " << hex << integer << ")" << endl << endl;
 	 			// *************************************************************
-	 	
-	 			classContents.at(i+1) = 0;
-	 			classContents.at(i+2) = 0;
-	 			classContents.at(i+3) = 0;
-	 			classContents.at(i+4) = 0;
+
+	 			for(int r = 1; r <= 4; ++r) {
+	 				classContents.at(i+r) = 0;
+	 			}
+	 			
 	 			object.clear();
 	 			object = setConstantPoolArray(tag, to_string(integer), "");
 	 			cf.setCPSIZE(5);
@@ -245,6 +245,7 @@ class ClassLoader {
 	 		else if(strcmp(tag.c_str(), "NameAndType") == 0) {
 	 			int byte1 = (int)classContents.at(i+2);
 	 			int byte2 = (int)classContents.at(i+4);
+	 			object.clear();
 	 			object = setConstantPoolArray(tag, to_string(byte1), to_string(byte2));
 	 			cf.setCPSIZE(5);
 	 		}
@@ -257,7 +258,7 @@ class ClassLoader {
 	 			for(int z = 0; z < values.size(); ++z) {
 	 				utf8 += getUTF8Char(stoi(values.at(z), 0, 16));
 	 				++utf8ByteLength;
-	 				++i;
+	 				//++i;
 	 			}
 
 	 			// *********************************************************
@@ -283,6 +284,7 @@ public:
 		the_class = claSS;
 		classContents = readClassBytes();
 		setMagicNumber();
+		
 		// ************************************************************
 		unsigned long magic = cf.getMagicNumber();
 		cout << "\nMagic number (hex) = " << hex << magic << " (dec: " 
