@@ -7,15 +7,14 @@ Released under the MIT/X11 License.
 Please see LICENSE file.
 */
 
-#include <cstring>
 #include <string>
 #include <vector>
-using std::string;
-using std::vector;
+
+using namespace std;
 
 class ClassFile {
 
-	string magic;
+	unsigned long magic;
 	int minor_version;
 	int major_version;
 	int constant_pool_count;
@@ -37,35 +36,30 @@ class ClassFile {
 public:
 
 	ClassFile() { // Constructor for ClassFile.
-		magic = "";
+		magic = 0;
 		minor_version = 0;
 		major_version = 0;
 		constant_pool_count = 0;
-		//constant_pool();
-		//cp_size();
 		access_flags = 0;
 		this_class = 0;
 		super_class = 0;
 		interfaces_count = 0;
-		//interfaces();
 		fields_count = 0;
-		//fields();
 		methods_count = 0;
-		//methods();
 		attributes_count = 0;
-		//attributes();
+
 		tags = { "Null", "Utf8", "Null", "Integer", "Float", "Long", "Double", "Class", "String", "Fieldref", \
 		"Methodref", "InterfaceMethodref", "NameAndType" };
 	}
-	void setMagicNumber(string magicNum) {
+	void setMagicNumber(unsigned long magicNum) {
 		magic = magicNum;
 	}
-	string getMagicNumber() {
+	unsigned long getMagicNumber() {
 		return magic;
 	}
 	bool checkMagicNumber() {
 		bool isMagic = false;
-		if(strcmp(magic.c_str(), "cafebabe") == 0) isMagic = true;
+		if(magic == 0xCAFEBABE) isMagic = true;
 		return isMagic;
 	}
 	void setMinorVersion(int minorVer) {

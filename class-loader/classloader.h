@@ -101,7 +101,7 @@ class ClassLoader {
 	 * Get UTF-8 character for decimal integer value.
 	*/
 	char getUTF8Char(int dec) {
-		return (char) dec;
+		return (char)dec;
 	}
 
 	/**
@@ -115,7 +115,10 @@ class ClassLoader {
 	  * Set magic number for loaded Java classfile.
 	*/
 	void setMagicNumber() {
-		string magic = setClassSection(0, 4, 16, true);
+		unsigned long magic = 0;
+		string smagic = setClassSection(0, 4, 16, true);
+		istringstream iss(smagic);
+		iss >> hex >> magic;
 		cf.setMagicNumber(magic);
 	}
 
@@ -200,7 +203,6 @@ class ClassLoader {
 
 	 	for(int i = n; i < y; ++i) {
 
-	 		cout << "Tag value is: " << dec << (int)classContents.at(i) << endl;
 	 		string tag = cf.getTag((int)classContents.at(i));
 	 		vector<string> object;
 
@@ -223,7 +225,7 @@ class ClassLoader {
 	 			int integer = stoi(getHexadecimalValue(i, 4), 0, 16);
 
 	 			// *************************************************************
-	 			cout << "Integer is: " << integer << 
+	 			cout << "Integer is: " << dec << integer << 
 	 			" (hex: " << hex << integer << ")" << endl << endl;
 	 			// *************************************************************
 	 	
@@ -255,6 +257,7 @@ class ClassLoader {
 	 			for(int z = 0; z < values.size(); ++z) {
 	 				utf8 += getUTF8Char(stoi(values.at(z), 0, 16));
 	 				++utf8ByteLength;
+	 				++i;
 	 			}
 
 	 			// *********************************************************
@@ -280,11 +283,27 @@ public:
 		the_class = claSS;
 		classContents = readClassBytes();
 		setMagicNumber();
-		cout << "Magic number (hex) = " << cf.getMagicNumber() << endl; // !
+		// ************************************************************
+		unsigned long magic = cf.getMagicNumber();
+		cout << "\nMagic number (hex) = " << hex << magic << " (dec: " 
+		<< dec << magic << ")" << endl;
+		// ************************************************************
+		
 		if(cf.checkMagicNumber()) {
 			cout << endl;
 			setMinorVersion();
 			setMajorVersion();
+
+			// ********************************************************
+			int minorVer = cf.getMinorVersion();
+			cout << "Minor version = " << dec << minorVer
+			<< " (hex: " << hex << minorVer << ")" << endl;
+
+			int majorVer = cf.getMajorVersion();
+			cout << "Major version = " << dec << majorVer
+			<< " (hex: " << hex << majorVer << ")" << endl << endl;
+			// ********************************************************
+
 			setConstantPoolCount();
 			setConstantPoolTable();
 		}

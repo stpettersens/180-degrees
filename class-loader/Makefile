@@ -11,7 +11,7 @@ STDFLAG = -std=c++1y
 SOURCE = vm.cpp
 TARGET = vm.exe
 LFLAGS = -o
-INCLUDES = -IC:/Dev/boost_1_55_0
+INCLUDES = -IC:/Dev/MinGW/include
 PLATFORM = $(shell uname -s)
 
 # Don't use Windows, use Linux. You change change this to suit your platform
