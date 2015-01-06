@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 class ClassFile {
 
-	private int magic;
+	private long magic;
 	private int minor_version;
 	private int major_version;
 	private int constant_pool_count;
@@ -45,7 +45,7 @@ class ClassFile {
 		fields_count = 0;
 		attributes_count = 0;
 
-		tags = new String[10];
+		tags = new String[13];
 		tags[0] = "Null";
 		tags[1] = "Utf8";
 		tags[2] = "Null";
@@ -60,10 +60,10 @@ class ClassFile {
 		tags[11]= "InterfaceMethodref";
 		tags[12]= "NameAndType";
 	}
-	void setMagicNumber(int magicNum) {
+	void setMagicNumber(long magicNum) {
 		magic = magicNum;
 	}
-	int getMagicNumber() {
+	long getMagicNumber() {
 		return magic;
 	}
 	boolean checkMagicNumber() {

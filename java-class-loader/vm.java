@@ -22,6 +22,9 @@ class VM {
 
 	public static void main(String[] args) {
 
-		System.out.println("Usage: vm <classFile>\n");
+		//System.out.println("Usage: vm <classFile>\n");
+
+		ClassLoader classLoader = new ClassLoader();
+		classLoader.load("Main.class", true);
 	} 
 }
