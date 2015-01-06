@@ -43,6 +43,34 @@ class ClassLoader {
 	}
 
 	/**
+	 * Set a section of the loaded Java classfile stored object (cf).
+	*/
+	String setClassSection(int start, int end, int base, boolean magic) {
+		String fvalue = "";
+		ArrayList<Integer> value = new ArrayList<Integer>();
+		for(int i = start; i < end; ++i) {
+			int x = classContents.get(i);
+			value.add(x);
+		}
+		for(int i = 0; i < value.size(); ++i) {
+			String s = "";
+			if(base == 16) s = Integer.toHexString(value.get(i));
+			if(base == 10) s = String.format("%s", value.get(i));
+			fvalue += s;
+		}
+		return fvalue;
+	}
+
+	/**
+	 * Set magic number for loaded Java classfile.
+	*/
+	void setMagicNumber() {
+		String smagic = setClassSection(0, 4, 16, true);
+		long magic = Long.parseLong(smagic, 16);
+		cf.setMagicNumber(magic);
+	}
+
+	/**
 	 * Load a Java classfile and dump  loaded structure if specified.
 	*/
 	void load(String claSS, boolean dump) {
