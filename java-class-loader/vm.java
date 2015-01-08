@@ -1,3 +1,4 @@
+//package
 /*
 
 The "VM" - a front end to the classloader.
@@ -9,7 +10,6 @@ Released under the MIT/X11 License.
 Please see LICENSE file.
 
 */
-//package
 
 class VM {
 

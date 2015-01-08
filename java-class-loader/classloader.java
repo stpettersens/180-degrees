@@ -1,3 +1,4 @@
+//package
 /*
 
 The "VM" - a front end to the classloader.
@@ -9,7 +10,6 @@ Released under the MIT/X11 License.
 Please see LICENSE file.
 
 */
-//package
 
 import java.util.ArrayList;
 import java.io.FileInputStream;
@@ -135,7 +135,8 @@ class ClassLoader {
 		String value = "";
 		int z = 2;
 		for(int j = 0; j < length; ++j) {
-			if(classContents.get(i+z) >= 1 && classContents.get(i+z) < 11) {
+			int _byte = classContents.get(i+z);
+			if(_byte >= 1 && _byte < 11 && _byte != 2) {
 				break;
 			}
 			String s = Integer.toHexString(classContents.get(i+z));
@@ -152,7 +153,8 @@ class ClassLoader {
 		ArrayList<String> values = new ArrayList<String>();
 		int z = 2;
 		for(int j = 0; j < length; ++j) {
-			if(classContents.get(i+z) >= 1 && classContents.get(i+z) < 11) {
+			int _byte = classContents.get(i+z);
+			if(_byte >= 1 && _byte < 11 && _byte != 2) {
 				break;
 			}
 			String s = Integer.toHexString(classContents.get(i+z));

@@ -199,7 +199,7 @@ class ClassLoader {
 	 	vector<string> constPoolTable;
 	 	int n = 10;
 	 	int x = 1;
-	 	int y = 29;
+	 	int y = 35;
 
 	 	for(int i = n; i < y; ++i) {
 
