@@ -46,7 +46,7 @@ class ClassLoader {
 	/**
 	 * Set a section of the loaded Java classfile stored object (cf).
 	*/
-	String setClassSection(int start, int end, int base, boolean magic) {
+	private String setClassSection(int start, int end, int base, boolean magic) {
 		String fvalue = "";
 		ArrayList<Integer> value = new ArrayList<Integer>();
 		for(int i = start; i < end; ++i) {
@@ -65,7 +65,7 @@ class ClassLoader {
 	/**
 	 * Set and return a constant pool array (ArrayList).
 	*/
-	ArrayList<String> setConstantPoolArray(String tag, String data1, String data2) {
+	private ArrayList<String> setConstantPoolArray(String tag, String data1, String data2) {
 		ArrayList<String> array = new ArrayList<String>();
 		if(data2 == "") {
 			array.add(tag);
@@ -84,22 +84,22 @@ class ClassLoader {
 	/**
 	 * Get UTF-8 character for decimal integer value.
 	*/
-	char getUTF8Char(int dec) {
+	private char getUTF8Char(int dec) {
 		return (char)dec;
 	}
 
-	String lookupMnemonicInstruction(int bytecode) {
+	private String lookupMnemonicInstruction(int bytecode) {
 		return lookupMnemonicInstruction(String.format("%d", bytecode));
 	}
 
-	String lookupMnemonicInstruction(String bytecode) {
+	private String lookupMnemonicInstruction(String bytecode) {
 		return "instruction"; // TODO
 	}
 
 	/**
 	 * Set magic number for loaded Java classfile.
 	*/
-	void setMagicNumber() {
+	private void setMagicNumber() {
 		String smagic = setClassSection(0, 4, 16, true);
 		long magic = Long.parseLong(smagic, 16);
 		cf.setMagicNumber(magic);
@@ -108,7 +108,7 @@ class ClassLoader {
 	/**
 	 * Set minor classfile version (e.g. 0).
 	*/
-	void setMinorVersion() {
+	private void setMinorVersion() {
 		String minorVer = setClassSection(4, 6, 10, false);
 		cf.setMinorVersion(Integer.parseInt(minorVer));
 	}
@@ -116,7 +116,7 @@ class ClassLoader {
 	/**
 	 * Set major classfile version (e.g. 51).
 	*/
-	void setMajorVersion() {
+	private void setMajorVersion() {
 		String majorVer = setClassSection(6, 8, 10, false);
 		cf.setMajorVersion(Integer.parseInt(majorVer));
 	}
@@ -124,7 +124,7 @@ class ClassLoader {
 	/**
 	 * Set constant pool count for classfile.
 	*/
-	void setConstantPoolCount() {
+	private void setConstantPoolCount() {
 		String constPoolCount = setClassSection(8, 10, 10, false);
 		cf.setConstantPoolCount(Integer.parseInt(constPoolCount));
 	}
@@ -132,7 +132,7 @@ class ClassLoader {
 	/**
 	 * Get a hexadecimal value for a classfile byte offset.
 	*/
-	String getHexadecimalValue(int i, int length) {
+	private String getHexadecimalValue(int i, int length) {
 		String value = "";
 		int z = 2;
 		for(int j = 0; j < length; ++j) {
@@ -151,7 +151,7 @@ class ClassLoader {
 	/**
 	 * Get a hexadecimal values for a classfile byte offset.
 	*/
-	ArrayList<String> getHexadecimalValues(int i, int length) {
+	private ArrayList<String> getHexadecimalValues(int i, int length) {
 		ArrayList<String> values = new ArrayList<String>();
 		int z = 2;
 		for(int j = 0; j < length; ++j) {
@@ -170,7 +170,7 @@ class ClassLoader {
 	/**
 	 * Set constant pool table for classfile.
 	*/
-	void setConstantPoolTable() {
+	private void setConstantPoolTable() {
 
 		ArrayList<String> constPoolTable = new ArrayList<String>();
 		int n = 10;
@@ -274,6 +274,7 @@ class ClassLoader {
 	 * Load a Java classfile and dump  loaded structure if specified.
 	*/
 	void load(String claSS, boolean dump) {
+		
 		the_class = claSS;
 		classContents = readClassBytes();
 		setMagicNumber();

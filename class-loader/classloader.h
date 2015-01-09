@@ -33,7 +33,7 @@ class ClassLoader {
 	vector<BYTE> readClassBytes() {
 
 		if(classExists()) {
-			
+
 			ifstream ifs(the_class, ios::binary|ios::ate);
 	    	ifstream::pos_type pos = ifs.tellg();
 
@@ -297,6 +297,7 @@ public:
 	  * Load a Java classfile and dump loaded structure if specified.
 	*/
 	void load(string claSS, bool dump) {
+		
 		the_class = claSS;
 		classContents = readClassBytes();
 		setMagicNumber();
