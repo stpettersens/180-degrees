@@ -1,4 +1,5 @@
 //package
+
 /*
 
 The "VM" - a front end to the classloader.
@@ -159,8 +160,10 @@ class ClassFile {
 		attributes.add(attribute);
 	}
 	String getTag(int index) {
-		String rtag = "Invalid tag index";
-		if(index != 0 || index != 2) rtag = tags[index];
+		String rtag = "Null";
+		if(index != 0 || index != 2 || index <= 12 || index > 0) {
+			rtag = tags[index];
+		}
 		return rtag;
 	}
 }

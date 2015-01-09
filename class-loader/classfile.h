@@ -48,8 +48,8 @@ public:
 		methods_count = 0;
 		attributes_count = 0;
 
-		tags = { "Null", "Utf8", "Null", "Integer", "Float", "Long", "Double", "Class", "String", "Fieldref", \
-		"Methodref", "InterfaceMethodref", "NameAndType" };
+		tags = { "Null", "Utf8", "Null", "Integer", "Float", "Long", "Double", \
+		"Class", "String", "Fieldref", "Methodref", "InterfaceMethodref", "NameAndType" };
 	}
 	void setMagicNumber(unsigned long magicNum) {
 		magic = magicNum;
@@ -148,8 +148,10 @@ public:
 		attributes.push_back(attribute);
 	}
 	string getTag(int index) {
-		string rtag = "Invalid tag index";
-		if(index != 0 || index != 2) rtag = tags[index];
+		string rtag = "Null";
+		if(index != 0 || index != 2 || index <= 12 || index > 0) { 
+			rtag = tags[index];
+		}
 		return rtag;
 	}
 };

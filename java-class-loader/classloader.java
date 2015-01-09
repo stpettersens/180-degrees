@@ -1,4 +1,5 @@
 //package
+
 /*
 
 The "VM" - a front end to the classloader.
@@ -35,7 +36,7 @@ class ClassLoader {
 			}
 		}
 		catch(IOException e) {
-			System.out.println("\nCannot open file:");
+			System.out.println(String.format("\nCannot open file: %s", the_class));
 			System.out.println(e.getMessage());
 			System.exit(-1);
 		}
@@ -139,7 +140,8 @@ class ClassLoader {
 			if(_byte >= 1 && _byte < 11 && _byte != 2) {
 				break;
 			}
-			String s = Integer.toHexString(classContents.get(i+z));
+			String s = Integer.toHexString(_byte);
+			classContents.set(i+z, 0);
 			value += s;
 			++z;
 		}
@@ -157,8 +159,9 @@ class ClassLoader {
 			if(_byte >= 1 && _byte < 11 && _byte != 2) {
 				break;
 			}
-			String s = Integer.toHexString(classContents.get(i+z));
+			String s = Integer.toHexString(_byte);
 			values.add(s);
+			classContents.set(i+z, 0);
 			++z;
 		}
 		return values;	
@@ -172,7 +175,7 @@ class ClassLoader {
 		ArrayList<String> constPoolTable = new ArrayList<String>();
 		int n = 10;
 		int x = 1;
-		int y = 29;
+		int y = cf.getCPCOUNT() * 9;
 
 		for(int i = n; i < y; ++i) {
 
@@ -241,13 +244,12 @@ class ClassLoader {
 				case "Utf8":
 					int utf8ByteLength = 2;
 					int size = classContents.get(i+2);
-					//classContents.set(i+2, 0);
+					classContents.set(i+2, 0);
 					ArrayList<String> values = getHexadecimalValues(i+1, size);
 					String utf8 = "";
 					for(int z = 0; z < values.size(); ++z) {
 						utf8 += getUTF8Char(Integer.parseInt(values.get(z), 16));
 						++utf8ByteLength;
-						++i;
 					}
 
 					// ******************************************************************

@@ -31,17 +31,34 @@ class ClassLoader {
 	string the_class;
 
 	vector<BYTE> readClassBytes() {
-		ifstream ifs(the_class, ios::binary|ios::ate);
-    	ifstream::pos_type pos = ifs.tellg();
 
-    	vector<BYTE> bytes(pos);
+		if(classExists()) {
+			
+			ifstream ifs(the_class, ios::binary|ios::ate);
+	    	ifstream::pos_type pos = ifs.tellg();
 
-    	ifs.seekg(0, ios::beg);
-    	ifs.read(&bytes[0], pos);
+	    	vector<BYTE> bytes(pos);
 
-    	return bytes;
+	    	ifs.seekg(0, ios::beg);
+	    	ifs.read(&bytes[0], pos);
+
+	    	return bytes;
+	    }
+	    else {
+	    	cout << "\nCannot open file: " << the_class << endl;
+	    	cout << "It does not exist or is inaccessible." << endl;
+	    	exit(-1);
+	    }
 	}
 
+	/**
+	 * Check that classfile exists.
+    */
+	bool classExists() {
+		ifstream f(the_class);
+		return f.good();
+	}
+ 
 	/**
 	  * Strip leading 2 'F's off a hexdecimal value.
 	*/
@@ -153,9 +170,8 @@ class ClassLoader {
 		string value = "";
 		int z = 2;
 		for(int j = 0; j < length; ++j) {
-			if((USHORT)classContents[i+z] == 1 || (USHORT)classContents[i+z] == 3 || (USHORT)classContents[i+z] == 4 ||
-			(USHORT)classContents[i+z] == 5 || (USHORT)classContents[i+z] == 6 || (USHORT)classContents[i+z] == 7 ||
-			(USHORT)classContents[i+z] == 8 || (USHORT)classContents[i+z] == 9 || (USHORT)classContents[i+z] == 10) {
+			USHORT _byte = (USHORT)classContents.at(i+z);
+			if(_byte >= 1 && _byte < 11 && _byte != 2) {
 				break;	
 			}
 			stringstream sstream;
@@ -163,6 +179,7 @@ class ClassLoader {
 			string s = sstream.str();
 
 			s = stripFs(s);
+			classContents.at(i+z) = 0;
 			value += s;
 			++z;
 		}
@@ -176,16 +193,16 @@ class ClassLoader {
 		vector<string> values;
 		int z = 2;
 		for(int j = 0; j < length; ++j) {
-			if((USHORT)classContents[i+z] == 1 || (USHORT)classContents[i+z] == 3 || (USHORT)classContents[i+z] == 4 ||
-			(USHORT)classContents[i+z] == 5 || (USHORT)classContents[i+z] == 6 || (USHORT)classContents[i+z] == 7 ||
-			(USHORT)classContents[i+z] == 8 || (USHORT)classContents[i+z] == 9 || (USHORT)classContents[i+z] == 10) {
+			USHORT _byte = (USHORT)classContents.at(i+z);
+			if(_byte >= 1 && _byte < 11 && _byte != 2) {
 				break;	
 			}
 			stringstream sstream;
-			sstream << hex << (USHORT)classContents.at(i+z);
+			sstream << hex << _byte;
 			string s = sstream.str();
 
 			s = stripFs(s);
+			classContents.at(i+z) = 0;
 			values.push_back(s);
 			++z;
 		}
@@ -199,7 +216,7 @@ class ClassLoader {
 	 	vector<string> constPoolTable;
 	 	int n = 10;
 	 	int x = 1;
-	 	int y = 35;
+	 	int y = cf.getCPCOUNT() * 9;
 
 	 	for(int i = n; i < y; ++i) {
 
@@ -258,7 +275,6 @@ class ClassLoader {
 	 			for(int z = 0; z < values.size(); ++z) {
 	 				utf8 += getUTF8Char(stoi(values.at(z), 0, 16));
 	 				++utf8ByteLength;
-	 				//++i;
 	 			}
 
 	 			// *********************************************************
