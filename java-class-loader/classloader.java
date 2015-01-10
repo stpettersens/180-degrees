@@ -248,14 +248,16 @@ class ClassLoader {
 					ArrayList<String> values = getHexadecimalValues(i+1, size);
 					String utf8 = "";
 					for(int z = 0; z < values.size(); ++z) {
-						utf8 += getUTF8Char(Integer.parseInt(values.get(z), 16));
+						int utf8int = Integer.parseInt(values.get(z), 16);
+						// System.out.println(String.format("utf8int = %d", utf8int));
+						utf8 += getUTF8Char(utf8int);
 						++utf8ByteLength;
 					}
 
-					// ******************************************************************
-					System.out.println(String.format("Utf8 string is: \"%s\"", utf8));
-					System.out.println("");
-					// ******************************************************************
+					// ********************************************************************
+					// System.out.println(String.format("Utf8 string is: \"%s\"", utf8));
+					// System.out.println("");
+					// ********************************************************************
 
 					if(utf8.length() > 2) {
 						object.clear();

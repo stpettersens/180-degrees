@@ -88,7 +88,7 @@ public:
 	}
 	int getCPSIZE() {
 		int f_cpsize = 0;
-		for(int i = 0; i <= cp_size.size(); ++i) {
+		for(int i = 0; i < cp_size.size(); ++i) {
 			f_cpsize += cp_size.at(i);
 		}
 		return f_cpsize;

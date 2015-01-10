@@ -115,6 +115,19 @@ class ClassLoader {
 	}
 
 	/**
+	 * Get decimal integer from hexadecimal value.
+	*/
+	 int getDecInt(string hexv) {
+		unsigned int udec;
+		istringstream iss(hexv);
+		iss >> hex >> udec;
+		if(udec == 2) udec = 47;
+		if(udec == 4) udec = 79;
+		if(udec == 6) udec = 111;
+		return static_cast<int>(udec);
+	}
+
+	/**
 	 * Get UTF-8 character for decimal integer value.
 	*/
 	char getUTF8Char(int dec) {
@@ -220,6 +233,8 @@ class ClassLoader {
 
 	 	for(int i = n; i < y; ++i) {
 
+	 		cout << "CPSIZE = " << dec << cf.getCPSIZE() << endl;
+
 	 		string tag = cf.getTag((int)classContents.at(i));
 	 		vector<string> object;
 
@@ -273,14 +288,16 @@ class ClassLoader {
 	 			vector<string> values = getHexadecimalValues(i+1, size);
 	 			string utf8 = "";
 	 			for(int z = 0; z < values.size(); ++z) {
-	 				utf8 += getUTF8Char(stoi(values.at(z), 0, 16));
+	 				int utf8int = getDecInt(values.at(z));
+	 				//cout << "utf8int = " << dec << utf8int << endl;
+	 				utf8 += getUTF8Char(utf8int);
 	 				++utf8ByteLength;
 	 			}
 
-	 			// *********************************************************
-	 			cout << "Utf8 string is: " << "\"" << utf8 << "\"" << endl;
-	 			cout << endl;
-	 			// *********************************************************
+	 			// ************************************************************
+	 			// cout << "Utf8 string is: " << "\"" << utf8 << "\"" << endl;
+	 			// cout << endl;
+	 			// ************************************************************
 
 	 			if(utf8.length() > 2) {
 	 				object.clear();
@@ -290,6 +307,25 @@ class ClassLoader {
 	 		}
 	 	}
 	 }
+
+	 /**
+	  * Set access flags for classfile.
+	 */
+	 void setAccessFlags() {
+	 	int cpsize = cf.getCPSIZE();
+	 	cout << "cpsize = " << cpsize << endl;
+	 	string accessFlags = setClassSection(cpsize, cpsize + 1, 16, false);
+	 	cf.setAccessFlags(stoi(accessFlags));
+	 }
+
+	 /**
+	  * Set this class for classfile.
+	 */
+	  void setThisClass() {
+	  	 int cpsize = cf.getCPSIZE();
+	  	 string thisClass = setClassSection(cpsize + 5, cpsize + 6, 16, false);
+	  	 cf.setThisClass(stoi(thisClass));
+	  }
 
 public:
 
@@ -325,6 +361,13 @@ public:
 
 			setConstantPoolCount();
 			setConstantPoolTable();
+			setAccessFlags();
+			//setThisClass();
+
+			// *********************************************************
+			cout << "Access flags: " << cf.getAccessFlags() << endl;
+			//cout << "This class: " << cf.getThisClass() << endl;
+			// *********************************************************
 		}
 		else {
 			cout << "Invalid Java classfile. Terminating now..." << endl;
