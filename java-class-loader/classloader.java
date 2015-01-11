@@ -177,6 +177,8 @@ class ClassLoader {
 		int x = 1;
 		int y = cf.getCPCOUNT() * 9;
 
+		System.out.println(String.format("CPSIZE = %d", cf.getCPSIZE()));
+
 		for(int i = n; i < y; ++i) {
 
 			String tag = cf.getTag(classContents.get(i));
@@ -268,6 +270,15 @@ class ClassLoader {
 		}
 	}
 
+	/**
+	 * Set access flags for classfile.
+	*/
+	private void setAccessFlags() {
+		int cpsize = cf.getCPSIZE();
+		String accessFlags = setClassSection(cpsize + 1, cpsize + 2, 10, false);
+		cf.setConstantPoolCount(Integer.parseInt(accessFlags));
+	}
+
 	ClassLoader() { // Constructor for ClassLoader.
 		cf = new ClassFile();
 	}
@@ -304,6 +315,9 @@ class ClassLoader {
 
 			setConstantPoolCount();
 			setConstantPoolTable();
+			setAccessFlags();
+
+			System.out.println(String.format("Access flags: %d", cf.getAccessFlags()));
 		}
 		else {
 			System.out.println("Invalid Java classfile. Terminating now...");
