@@ -177,8 +177,6 @@ class ClassLoader {
 		int x = 1;
 		int y = cf.getCPCOUNT() * 9;
 
-		System.out.println(String.format("CPSIZE = %d", cf.getCPSIZE()));
-
 		for(int i = n; i < y; ++i) {
 
 			String tag = cf.getTag(classContents.get(i));
@@ -195,7 +193,7 @@ class ClassLoader {
 					String sbyte2 = String.format("%d", byte2);
 					object.clear();
 					object = setConstantPoolArray(tag, sbyte1, sbyte2);
-					cf.setCPSIZE(5);
+					cf.setCPSIZE(5, "Methodref");
 					break;
 
 				case "Class":
@@ -203,7 +201,7 @@ class ClassLoader {
 					object.clear();
 					object = setConstantPoolArray(tag, sbyte, "");
 					classContents.set(i+2, 0);
-					cf.setCPSIZE(3);
+					cf.setCPSIZE(3, "Class");
 					break;
 
 				case "Integer":
@@ -221,14 +219,14 @@ class ClassLoader {
 	 		
 					object.clear();
 					object = setConstantPoolArray(tag, sint, "");
-					cf.setCPSIZE(5);
+					cf.setCPSIZE(5, "Integer");
 					break;
 
 				case "String":
 					String str = String.format("%s", classContents.get(i+2));
 					object.clear();
 					object = setConstantPoolArray(tag, str, "");
-					cf.setCPSIZE(3);
+					cf.setCPSIZE(3, "String");
 					break;
 
 				case "NameAndType":
@@ -240,18 +238,22 @@ class ClassLoader {
 					classContents.set(i+4, 0);
 					object.clear();
 					object = setConstantPoolArray(tag, sbyteA, sbyteB);
-					cf.setCPSIZE(5);
+					cf.setCPSIZE(5, "NameAndType");
 					break;
 
 				case "Utf8":
-					int utf8ByteLength = 2;
+					int utf8ByteLength = 3;
 					int size = classContents.get(i+2);
+
+					// ********************************************************************
+					System.out.println(String.format("Declared UTF-8 size = %d", size));
+					// ********************************************************************
+
 					classContents.set(i+2, 0);
 					ArrayList<String> values = getHexadecimalValues(i+1, size);
 					String utf8 = "";
 					for(int z = 0; z < values.size(); ++z) {
 						int utf8int = Integer.parseInt(values.get(z), 16);
-						// System.out.println(String.format("utf8int = %d", utf8int));
 						utf8 += getUTF8Char(utf8int);
 						++utf8ByteLength;
 					}
@@ -262,10 +264,12 @@ class ClassLoader {
 					// ********************************************************************
 
 					if(utf8.length() > 2) {
+						System.out.println(String.format("Utf-8 length: %d", utf8ByteLength));
 						object.clear();
 						object = setConstantPoolArray(tag, utf8, "");
-						cf.setCPSIZE(utf8ByteLength);
+						cf.setCPSIZE(utf8ByteLength, "Utf8");
 					}
+					break;
 			}
 		}
 	}
@@ -275,11 +279,66 @@ class ClassLoader {
 	*/
 	private void setAccessFlags() {
 		int cpsize = cf.getCPSIZE();
-		String accessFlags = setClassSection(cpsize + 1, cpsize + 2, 10, false);
-		cf.setConstantPoolCount(Integer.parseInt(accessFlags));
+		int accessFlags = classContents.get(cpsize + 10) + classContents.get(cpsize + 11);
+		cf.setAccessFlags(accessFlags);
+	}
+
+	/**
+	 * Set this class for classfile.
+	*/
+	private void setThisClass() {
+		int cpsize = cf.getCPSIZE();
+		int thisClass = classContents.get(cpsize + 12) + classContents.get(cpsize + 13);
+		cf.setThisClass(thisClass);
+	}
+
+	/**
+	 * Set super class for classfile.
+	*/
+	private void setSuperClass() {
+		int cpsize = cf.getCPSIZE();
+		int superClass = classContents.get(cpsize + 14) + classContents.get(cpsize + 15);
+		cf.setSuperClass(superClass);
+	}
+
+	/**
+	 * Set interfaces count.
+	*/
+	private void setInterfacesCount() {
+		int cpsize = cf.getCPSIZE();
+		int interfacesCount = classContents.get(cpsize + 16) + classContents.get(cpsize + 17);
+		cf.setInterfacesCount(interfacesCount);
+	}
+
+	/**
+	 * Set fields count.
+	*/
+	private void setFieldsCount() {
+		int cpsize = cf.getCPSIZE();
+		int fieldsCount = classContents.get(cpsize + 18) + classContents.get(cpsize + 19);
+		cf.setFieldsCount(fieldsCount);
+	}
+
+	/**
+	 * Set methods count.
+	*/
+	private void setMethodsCount() {
+		int cpsize = cf.getCPSIZE();
+		int methodsCount = classContents.get(cpsize + 20) + classContents.get(cpsize + 21);
+		cf.setMethodsCount(methodsCount);
+	}
+
+	/**
+	 * Set attributes count.
+	*/
+	private void setAttributesCount() {
+		int cpsize = cf.getCPSIZE();
+		int attribCount = classContents.get(cpsize + 22) + classContents.get(cpsize + 23);
+		cf.setAttributesCount(attribCount);
 	}
 
 	ClassLoader() { // Constructor for ClassLoader.
+
 		cf = new ClassFile();
 	}
 
@@ -314,10 +373,27 @@ class ClassLoader {
 			// *****************************************************************************************
 
 			setConstantPoolCount();
-			setConstantPoolTable();
+			setConstantPoolTable();;
 			setAccessFlags();
+			setThisClass();
+			setSuperClass();
+			setInterfacesCount();
+			setFieldsCount();
+			setMethodsCount();
+			setAttributesCount();
 
-			System.out.println(String.format("Access flags: %d", cf.getAccessFlags()));
+			// *****************************************************************************************
+			System.out.println(String.format("CP_SIZE = %d", cf.getCPSIZE()));
+
+			String af = Integer.toHexString(cf.getAccessFlags());
+			System.out.println(String.format("Access flags: %s", af));
+			System.out.println(String.format("This class: %d", cf.getThisClass()));
+			System.out.println(String.format("Super class: %d", cf.getSuperClass()));
+			System.out.println(String.format("Interfaces count: %d", cf.getInterfacesCount()));
+			System.out.println(String.format("Fields count: %d", cf.getFieldsCount()));
+			System.out.println(String.format("Methods count: %d", cf.getMethodsCount()));
+			System.out.println(String.format("Attributes count: %d", cf.getAttributesCount()));
+			// *****************************************************************************************
 		}
 		else {
 			System.out.println("Invalid Java classfile. Terminating now...");

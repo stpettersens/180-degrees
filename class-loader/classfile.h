@@ -83,7 +83,8 @@ public:
 	void pushToConstantPool(vector<string> constValPair) {
 		constant_pool.push_back(constValPair); // Possibly make this a String[2] array.
 	}
-	void setCPSIZE(int tagSize) {
+	void setCPSIZE(int tagSize, string type) {
+		cout << "+ " << dec << tagSize << " (" << type << ")" << endl << endl;
 		cp_size.push_back(tagSize);
 	}
 	int getCPSIZE() {

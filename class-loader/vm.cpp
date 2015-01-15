@@ -10,6 +10,8 @@ Please see LICENSE file.
 */
 
 #include <iostream>
+#include <cstring>
+#include <string>
 #include "boost/version.hpp"
 #include "classloader.h"
 
@@ -28,12 +30,32 @@ void displayVersion() {
 	exit(0);
 }
 
-int main() {
-	
-	//cout << "Usage: vm <classFile>" << endl;
+void loadClassFile(string claSS, bool dump) {
 
 	ClassLoader classLoader;
-	classLoader.load("Main.class", true);
+	classLoader.load(claSS + ".class", dump);
+}
+
+int main(int argc, char* argv[]) {
+	
+	if(argc == 1) cout << "Usage: vm -c [-d] <classFile>" << endl;
+
+	else if(argc > 1 && argc < 7) {
+
+		for(int i = 1; i < argc; ++i) {
+
+			if(strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--class") == 0) {
+				if(strcmp(argv[i+1], "-d") == 0 || strcmp(argv[i+1], "--dump") == 0) {
+
+					loadClassFile(string(argv[i+2]), true);
+				}
+				else {
+
+					loadClassFile(string(argv[i+1]), false);
+				}
+			}
+		}
+	}
 
 	return 0;
 }

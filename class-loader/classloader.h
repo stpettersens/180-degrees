@@ -10,10 +10,8 @@ Please see LICENSE file.
 */
 
 #include <iostream>
-#include <cstdlib>
 #include <fstream>
 #include <sstream>
-#include <cstring>
 #include <string>
 #include <vector>
 #include "boost/algorithm/string/replace.hpp"
@@ -233,25 +231,23 @@ class ClassLoader {
 
 	 	for(int i = n; i < y; ++i) {
 
-	 		cout << "CPSIZE = " << dec << cf.getCPSIZE() << endl;
-
 	 		string tag = cf.getTag((int)classContents.at(i));
 	 		vector<string> object;
 
-	 		if(strcmp(tag.c_str(), "Methodref") == 0) {
+	 		if(tag.compare("Methodref") == 0) {
 	 			int byte1 = (int)classContents.at(i+2);
 	 			int byte2 = (int)classContents.at(i+4);
 	 			classContents.at(i+2) = 0; // Set byte to 0 to prevent re-read of byte.
 	 			classContents.at(i+4) = 0;
 	 			object.clear();
 	 			object = setConstantPoolArray(tag, to_string(byte1), to_string(byte2));
-	 			cf.setCPSIZE(5);
+	 			cf.setCPSIZE(5, "Methodref");
 	 		}
-	 		else if(strcmp(tag.c_str(), "Class") == 0) {
+	 		else if(tag.compare("Class") == 0) {
 	 			object.clear();
 	 			object = setConstantPoolArray(tag, to_string((int)classContents.at(i+2)), "");
 	 			classContents.at(i+2) = 0;
-	 			cf.setCPSIZE(3);
+	 			cf.setCPSIZE(3, "Class");
 	 		}
 	 		else if(strcmp(tag.c_str(), "Integer") == 0) {
 	 			int integer = stoi(getHexadecimalValue(i, 4), 0, 16);
@@ -267,23 +263,28 @@ class ClassLoader {
 	 			
 	 			object.clear();
 	 			object = setConstantPoolArray(tag, to_string(integer), "");
-	 			cf.setCPSIZE(5);
+	 			cf.setCPSIZE(5, "Integer");
 	 		}
-	 		else if(strcmp(tag.c_str(), "String") == 0) {
+	 		else if(tag.compare("String") == 0) {
 	 			object.clear();
 	 			object = setConstantPoolArray(tag, to_string((int)classContents.at(i+2)), "");
-	 			cf.setCPSIZE(3);
+	 			cf.setCPSIZE(3, "String");
 	 		}
-	 		else if(strcmp(tag.c_str(), "NameAndType") == 0) {
+	 		else if(tag.compare("NameAndType") == 0) {
 	 			int byte1 = (int)classContents.at(i+2);
 	 			int byte2 = (int)classContents.at(i+4);
 	 			object.clear();
 	 			object = setConstantPoolArray(tag, to_string(byte1), to_string(byte2));
-	 			cf.setCPSIZE(5);
+	 			cf.setCPSIZE(5, "NameAndType");
 	 		}
-	 		else if(strcmp(tag.c_str(), "Utf8") == 0) {
-	 			int utf8ByteLength = 2;
+	 		else if(tag.compare("Utf8") == 0) {
+	 			int utf8ByteLength = 3;
 	 			int size = (int)classContents.at(i+2);
+
+	 			// *********************************************************************
+	 			cout << "Declared UTF-8 size = " << size << endl;
+	 			// *********************************************************************
+
 	 			classContents.at(i+2) = 0;
 	 			vector<string> values = getHexadecimalValues(i+1, size);
 	 			string utf8 = "";
@@ -300,9 +301,10 @@ class ClassLoader {
 	 			// ************************************************************
 
 	 			if(utf8.length() > 2) {
+	 				cout << "Utf-8 length: " << utf8ByteLength << endl;
 	 				object.clear();
 	 				object = setConstantPoolArray(tag, utf8, "");
-	 				cf.setCPSIZE(utf8ByteLength);
+	 				cf.setCPSIZE(utf8ByteLength, "Utf8");
 	 			}
 	 		}
 	 	}
@@ -313,19 +315,63 @@ class ClassLoader {
 	 */
 	 void setAccessFlags() {
 	 	int cpsize = cf.getCPSIZE();
-	 	cout << "cpsize = " << cpsize << endl;
-	 	string accessFlags = setClassSection(cpsize, cpsize + 1, 16, false);
-	 	cf.setAccessFlags(stoi(accessFlags));
+	 	int accessFlags = classContents.at(cpsize + 10) + classContents.at(cpsize + 11);
+	 	cf.setAccessFlags(accessFlags);
 	 }
 
 	 /**
 	  * Set this class for classfile.
 	 */
-	  void setThisClass() {
-	  	 int cpsize = cf.getCPSIZE();
-	  	 string thisClass = setClassSection(cpsize + 5, cpsize + 6, 16, false);
-	  	 cf.setThisClass(stoi(thisClass));
-	  }
+	 void setThisClass() {
+	 	int cpsize = cf.getCPSIZE();
+	  	int thisClass = classContents.at(cpsize + 12) + classContents.at(cpsize + 13);
+	  	cf.setThisClass(thisClass);
+	 }
+
+	 /**
+	   * Set super class for classfile.
+	 */
+	 void setSuperClass() {
+	 	int cpsize = cf.getCPSIZE();
+	 	int superClass = classContents.at(cpsize + 14) + classContents.at(cpsize + 15);
+	 	cf.setSuperClass(superClass);
+	 }
+
+	 /**
+	  * Set interfaces count.
+	 */
+	 void setInterfacesCount() {
+	 	int cpsize = cf.getCPSIZE();
+	 	int interfacesCount = classContents.at(cpsize + 16) + classContents.at(cpsize + 17);
+	 	cf.setInterfacesCount(interfacesCount);
+	 }
+
+	 /**
+	  * Set fields count.
+	 */
+	 void setFieldsCount() {
+	 	int cpsize = cf.getCPSIZE();
+	 	int fieldsCount = classContents.at(cpsize + 18) + classContents.at(cpsize + 19);
+	 	cf.setFieldsCount(fieldsCount);
+	 }
+
+	 /**
+	  * Set methods count.
+	 */
+	 void setMethodsCount() {
+	 	int cpsize = cf.getCPSIZE();
+	 	int methodsCount = classContents.at(cpsize + 20) + classContents.at(cpsize + 21);
+	 	cf.setMethodsCount(methodsCount);
+	 }
+
+	 /**
+	  * Set attributes count.
+	 */
+	 void setAttributesCount() {
+	 	int cpsize = cf.getCPSIZE();
+	 	int attribCount = classContents.at(cpsize + 22) + classContents.at(cpsize + 23);
+	 	cf.setAttributesCount(attribCount);	 	
+	 }
 
 public:
 
@@ -362,12 +408,24 @@ public:
 			setConstantPoolCount();
 			setConstantPoolTable();
 			setAccessFlags();
-			//setThisClass();
+			setThisClass();
+			setSuperClass();
+			setInterfacesCount();
+			setFieldsCount();
+			setMethodsCount();
+			setAttributesCount();
 
-			// *********************************************************
-			cout << "Access flags: " << cf.getAccessFlags() << endl;
-			//cout << "This class: " << cf.getThisClass() << endl;
-			// *********************************************************
+			// ***********************************************************************
+			cout << "CP_SIZE = " << cf.getCPSIZE() << endl;
+
+			cout << "Access flags: " << hex << cf.getAccessFlags() << endl;
+			cout << "This class: " << cf.getThisClass() << endl;
+			cout << "Super class: " << cf.getSuperClass() << endl;
+			cout << "Interfaces count: " << cf.getInterfacesCount() << endl;
+			cout << "Fields count: " << cf.getFieldsCount() << endl;
+			cout << "Methods count: " << cf.getMethodsCount() << endl;
+			cout << "Attributes count: " << cf.getAttributesCount() << endl;
+			// ***********************************************************************
 		}
 		else {
 			cout << "Invalid Java classfile. Terminating now..." << endl;

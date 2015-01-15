@@ -22,11 +22,31 @@ class VM {
 		System.exit(0);
 	}
 
-	public static void main(String[] args) {
-
-		//System.out.println("Usage: vm <classFile>\n");
+	private static void loadClassFile(String claSS, boolean dump) {
 
 		ClassLoader classLoader = new ClassLoader();
-		classLoader.load("Main.class", true);
+		classLoader.load(String.format("%s.class", claSS), dump);
+	}
+
+	public static void main(String[] args) {
+
+		if(args.length == 0) System.out.println("Usage: VM -c [-d] <classFile>");
+
+		else if(args.length > 1 && args.length < 7) {
+
+			for(int i = 0; i < args.length; ++i) {
+
+				if(args[i].equals("-c") || args[i].equals("--class")) {
+					if(args[i+1].equals("-d") || args[i+1].equals("--dump")) {
+
+						loadClassFile(args[i+2], true);
+					}
+					else {
+
+						loadClassFile(args[i+1], false);
+					}
+				}
+			}
+		}
 	} 
 }

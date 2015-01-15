@@ -95,7 +95,8 @@ class ClassFile {
 	void pushToConstantPool(ArrayList<String> constValPair) {
 		constant_pool.add(constValPair); // Possibly make this a String[2] array.
 	}
-	void setCPSIZE(int tagSize) {
+	void setCPSIZE(int tagSize, String type) {
+		System.out.println(String.format("+ %d (%s)\n", tagSize, type));
 		cp_size.add(tagSize);
 	}
 	int getCPSIZE() {
