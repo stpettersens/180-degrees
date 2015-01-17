@@ -23,14 +23,17 @@ class ClassFile {
 	int access_flags;
 	int this_class;
 	int super_class;
+	int start_byte;
 	int interfaces_count;
-	vector<string> interfaces;
+	vector<int> interfaces;
 	int fields_count;
-	vector<string> fields;
+	vector<int> fields;
 	int methods_count;
-	vector<string> methods;
+	vector<int> methods;
 	int attributes_count;
-	vector<string> attributes;
+	vector<int> attributes;
+	int bytecodes_count;
+	vector<int> bytecodes;
 	vector<string> tags;
 
 public:
@@ -43,10 +46,12 @@ public:
 		access_flags = 0;
 		this_class = 0;
 		super_class = 0;
+		start_byte = 0;
 		interfaces_count = 0;
 		fields_count = 0;
 		methods_count = 0;
 		attributes_count = 0;
+		bytecodes_count = 0;
 
 		tags = { "Null", "Utf8", "Null", "Integer", "Float", "Long", "Double", \
 		"Class", "String", "Fieldref", "Methodref", "InterfaceMethodref", "NameAndType" };
@@ -112,14 +117,23 @@ public:
 	int getSuperClass() {
 		return super_class;
 	}
+	void setStartByte(int start) {
+		start_byte = start;
+	}
+	int getStartByte() {
+		return start_byte;
+	}
 	void setInterfacesCount(int interfacesCount) {
 		interfaces_count = interfacesCount;
 	}
 	int getInterfacesCount() {
 		return interfaces_count;
 	}
-	void pushInterface(string interface) {
+	void pushInterface(int interface) {
 		interfaces.push_back(interface);
+	}
+	vector<int> pullInterfaces() {
+		return interfaces;
 	}
 	void setFieldsCount(int fieldsCount) {
 		fields_count = fieldsCount;
@@ -127,8 +141,11 @@ public:
 	int getFieldsCount() {
 		return fields_count;
 	}
-	void pushField(string field) {
+	void pushField(int field) {
 		fields.push_back(field);
+	}
+	vector<int> pullFields() {
+		return fields;
 	}
 	void setMethodsCount(int methodsCount) {
 		methods_count = methodsCount;
@@ -136,17 +153,35 @@ public:
 	int getMethodsCount() {
 		return methods_count;
 	}
-	void pushMethod(string method) {
+	void pushMethod(int method) {
 		methods.push_back(method);
 	}
-	void setAttributesCount(int attribCount) {
-		attributes_count = attribCount;
+	vector<int> pullMethods() {
+		return methods;
+	}
+	void setAttributesCount(int attribsCount) {
+		attributes_count = attribsCount;
 	}
 	int getAttributesCount() {
 		return attributes_count;
 	}
-	void pushAttribute(string attribute) {
+	void pushAttribute(int attribute) {
 		attributes.push_back(attribute);
+	}
+	vector<int> pullAttributes() {
+		return attributes;
+	}
+	void setBytecodesCount(int bytecodesCount) {
+		bytecodes_count = bytecodesCount;
+	}
+	int getBytecodesCount() {
+		return bytecodes_count;
+	}
+	void pushBytecode(int bytecode) {
+		bytecodes.push_back(bytecode);
+	}
+	vector<int> pullBytecodes() {
+		return bytecodes;
 	}
 	string getTag(int index) {
 		string rtag = "Null";

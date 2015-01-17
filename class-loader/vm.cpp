@@ -54,6 +54,10 @@ int main(int argc, char* argv[]) {
 					loadClassFile(string(argv[i+1]), false);
 				}
 			}
+			else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
+
+				displayVersion();
+			}
 		}
 	}
 

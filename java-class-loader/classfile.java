@@ -25,14 +25,17 @@ class ClassFile {
 	private int access_flags;
 	private int this_class;
 	private int super_class;
+	private int start_byte;
 	private int interfaces_count;
-	private ArrayList<String> interfaces;
+	private ArrayList<Integer> interfaces;
 	private int fields_count;
-	private ArrayList<String> fields;
+	private ArrayList<Integer> fields;
 	private int methods_count;
-	private ArrayList<String> methods;
+	private ArrayList<Integer> methods;
 	private int attributes_count;
-	private ArrayList<String> attributes;
+	private ArrayList<Integer> attributes;
+	private int bytecodes_count;
+	private ArrayList<Integer> bytecodes;
 	private String[] tags;
 
 	ClassFile() { // Constructor for ClassFile.
@@ -44,8 +47,11 @@ class ClassFile {
 		access_flags = 0;
 		this_class = 0;
 		super_class = 0;
+		start_byte = 0;
 		fields_count = 0;
 		attributes_count = 0;
+		bytecodes_count = 0;
+		bytecodes = new ArrayList<Integer>();
 
 		tags = new String[13];
 		tags[0] = "Null";
@@ -124,14 +130,23 @@ class ClassFile {
 	int getSuperClass() {
 		return super_class;
 	}
+	void setStartByte(int start) {
+		start_byte = start;
+	}
+	int getStartByte() {
+		return start_byte;
+	}
 	void setInterfacesCount(int interfacesCount) {
 		interfaces_count = interfacesCount;
 	}
 	int getInterfacesCount() {
 		return interfaces_count;
 	}
-	void pushInterface(String _interface) {
+	void pushInterface(int _interface) {
 		interfaces.add(_interface);
+	}
+	ArrayList<Integer> pullInterfaces() {
+		return interfaces;
 	}
 	void setFieldsCount(int fieldsCount) {
 		fields_count = fieldsCount;
@@ -139,8 +154,11 @@ class ClassFile {
 	int getFieldsCount() {
 		return fields_count;
 	}
-	void pushField(String field) {
+	void pushField(int field) {
 		fields.add(field);
+	}
+	ArrayList<Integer> pullFields() {
+		return fields;
 	}
 	void setMethodsCount(int methodsCount) {
 		methods_count = methodsCount;
@@ -148,17 +166,35 @@ class ClassFile {
 	int getMethodsCount() {
 		return methods_count;
 	}
-	void pushMethod(String method) {
+	void pushMethod(int method) {
 		methods.add(method);
 	}
-	void setAttributesCount(int attribCount) {
-		attributes_count = attribCount;
+	ArrayList<Integer> pullMethods() {
+		return methods;
+	}
+	void setAttributesCount(int attribsCount) {
+		attributes_count = attribsCount;
 	}
 	int getAttributesCount() {
 		return attributes_count;
 	}
-	void pushAttribute(String attribute) {
+	void pushAttribute(int attribute) {
 		attributes.add(attribute);
+	}
+	ArrayList<Integer> pullAttributes() {
+		return attributes;
+	}
+	void setBytecodesCount(int bytecodesCount) {
+		bytecodes_count = bytecodesCount;
+	}
+	int getBytecodesCount() {
+		return bytecodes_count;
+	}
+	void pushBytecode(int bytecode) {
+		bytecodes.add(bytecode);
+	}
+	ArrayList<Integer> pullBytecodes() {
+		return bytecodes;
 	}
 	String getTag(int index) {
 		String rtag = "Null";

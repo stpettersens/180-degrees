@@ -29,7 +29,7 @@ class ClassLoader {
 
 		try {
 			in = new FileInputStream(the_class);
-			int c;
+			int c = 0;
 
 			while((c = in.read()) != -1) {
 				bytes.add(c);
@@ -307,7 +307,25 @@ class ClassLoader {
 	private void setInterfacesCount() {
 		int cpsize = cf.getCPSIZE();
 		int interfacesCount = classContents.get(cpsize + 16) + classContents.get(cpsize + 17);
+		cf.setStartByte(18);
 		cf.setInterfacesCount(interfacesCount);
+	}
+
+	/**
+	 * Push any interfaces to intefaces table.
+	*/
+	private void pushInterfaces() {
+		int cpsize = cf.getCPSIZE();
+		int x = cf.getStartByte();
+		int interfacesCount = cf.getInterfacesCount();
+		if(interfacesCount > 0) {
+			for(int i = 0; i < interfacesCount; ++i) {
+				int _interface = classContents.get(cpsize + x) + classContents.get(cpsize + (x + 1));
+				cf.pushInterface(_interface);
+				++x;
+			}
+			cf.setStartByte(x + 1);
+		}
 	}
 
 	/**
@@ -315,8 +333,27 @@ class ClassLoader {
 	*/
 	private void setFieldsCount() {
 		int cpsize = cf.getCPSIZE();
-		int fieldsCount = classContents.get(cpsize + 18) + classContents.get(cpsize + 19);
+		int x = cf.getStartByte();
+		int fieldsCount = classContents.get(cpsize + x) + classContents.get(cpsize + (x + 1));
+		cf.setStartByte(x + 2);
 		cf.setFieldsCount(fieldsCount);
+	}
+
+	/**
+	 * Push any fields to fields table.
+	*/
+	private void pushFields() {
+		int cpsize = cf.getCPSIZE();
+		int x = cf.getStartByte();
+		int fieldsCount = cf.getFieldsCount();
+		if(fieldsCount > 0) {
+			for(int i = 0; i < fieldsCount; ++i) {
+				int field = classContents.get(cpsize + x) + classContents.get(cpsize + (x + 1));
+				cf.pushField(field);
+				++x;
+			}
+			cf.setStartByte(x + 1);
+		}
 	}
 
 	/**
@@ -324,8 +361,27 @@ class ClassLoader {
 	*/
 	private void setMethodsCount() {
 		int cpsize = cf.getCPSIZE();
-		int methodsCount = classContents.get(cpsize + 20) + classContents.get(cpsize + 21);
+		int x = cf.getStartByte();
+		int methodsCount = classContents.get(cpsize + x) + classContents.get(cpsize + (x + 1));
+		cf.setStartByte(x + 2);
 		cf.setMethodsCount(methodsCount);
+	}
+
+	/**
+	 * Push any methods to methods table.
+	*/
+	private void pushMethods() {
+		int cpsize = cf.getCPSIZE();
+		int x = cf.getStartByte();
+		int methodsCount = cf.getMethodsCount();
+		/*if(methodsCount < 0) {
+			for(int i = 0; i < methodsCount; ++i) {
+				int method = classContents.get(cpsize + x) + classContents.get(cpsize + (x + 1));
+				cf.pushMethod(method);
+				++x;
+			}
+			cf.setStartByte(x + 1);
+		}*/
 	}
 
 	/**
@@ -333,9 +389,57 @@ class ClassLoader {
 	*/
 	private void setAttributesCount() {
 		int cpsize = cf.getCPSIZE();
-		int attribCount = classContents.get(cpsize + 22) + classContents.get(cpsize + 23);
+		int x = cf.getStartByte();
+		int attribCount = classContents.get(cpsize + x) + classContents.get(cpsize + (x + 1));
+		cf.setStartByte(x + 2);
 		cf.setAttributesCount(attribCount);
 	}
+
+	/**
+	 * Push any attributes to attributes table.
+	*/
+	private void pushAttributes() {
+		int cpsize = cf.getCPSIZE();
+		int x = cf.getStartByte();
+		/*int attribsCount = cf.getAttributesCount();
+		if(attribsCount > 0) {
+			for(int i = 0; i < attribsCount; ++i) {
+				int attribute = classContents.get(cpsize + x) + classContents.get(cpsize + (x + 1));
+				cf.pushAttribute(attribute);
+				++x;
+			}
+			cf.setStartByte(x + 20);
+		}*/
+	}
+
+	/**
+	 * Set bytecodes count.
+	*/
+	private void setBytecodesCount() {
+		int cpsize = cf.getCPSIZE();
+		int x = cf.getStartByte();
+		int bytecodesCount = classContents.get(cpsize + x) + classContents.get(cpsize + (x + 1));
+		cf.setStartByte(x + 20);
+		cf.setBytecodesCount(bytecodesCount);
+	}
+
+	/**
+	 * Push bytecodes to bytecodes table.
+	*/
+	private void pushBytecodes() {
+		int cpsize = cf.getCPSIZE();
+		int x = cf.getStartByte();
+		int bytecodesCount = cf.getBytecodesCount();
+		if(bytecodesCount > 0) {
+			for(int i = 0; i < bytecodesCount; ++i) {
+				int bytecode = classContents.get(cpsize + x) + classContents.get(cpsize + (x + 1));
+				cf.pushBytecode(bytecode);
+				++x;
+			}
+		}
+		cf.setStartByte(x);
+	}
+
 
 	ClassLoader() { // Constructor for ClassLoader.
 
@@ -378,11 +482,18 @@ class ClassLoader {
 			setThisClass();
 			setSuperClass();
 			setInterfacesCount();
+			pushInterfaces();
 			setFieldsCount();
+			pushFields();
 			setMethodsCount();
+			pushMethods();
 			setAttributesCount();
+			pushAttributes();
+			setBytecodesCount();
+			pushBytecodes();
 
 			// *****************************************************************************************
+			System.out.println(String.format("CP_COUNT  = %d", cf.getCPCOUNT()));
 			System.out.println(String.format("CP_SIZE = %d", cf.getCPSIZE()));
 
 			String af = Integer.toHexString(cf.getAccessFlags());
@@ -393,6 +504,14 @@ class ClassLoader {
 			System.out.println(String.format("Fields count: %d", cf.getFieldsCount()));
 			System.out.println(String.format("Methods count: %d", cf.getMethodsCount()));
 			System.out.println(String.format("Attributes count: %d", cf.getAttributesCount()));
+			System.out.println(String.format("Bytecodes count: %d", cf.getBytecodesCount()));
+
+			System.out.println("\nBytecodes:\n");
+			ArrayList<Integer> bytecodes = cf.pullBytecodes();
+			for(int i = 0; i < cf.getBytecodesCount(); ++i) {
+				String hbytecode = Integer.toHexString(bytecodes.get(i));
+				System.out.println(hbytecode);
+			}
 			// *****************************************************************************************
 		}
 		else {

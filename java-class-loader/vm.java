@@ -18,7 +18,10 @@ class VM {
 
 	private static void displayVersion() {
 
-		System.out.println("Java \"VM\" v. " + version + "\n");
+		String javaVersion = System.getProperty("java.version");
+		String javaVendor = System.getProperty("java.vendor");
+		String versionInfo = String.format("Java \"VM\" v. %s (running on Java %s by %s).", version, javaVersion, javaVendor);
+		System.out.println(versionInfo);
 		System.exit(0);
 	}
 
@@ -32,7 +35,7 @@ class VM {
 
 		if(args.length == 0) System.out.println("Usage: VM -c [-d] <classFile>");
 
-		else if(args.length > 1 && args.length < 7) {
+		else if(args.length > 0 && args.length < 7) {
 
 			for(int i = 0; i < args.length; ++i) {
 
@@ -45,6 +48,10 @@ class VM {
 
 						loadClassFile(args[i+1], false);
 					}
+				}
+				else if(args[i].equals("-v") || args[i].equals("--version")) {
+
+					displayVersion();
 				}
 			}
 		}

@@ -135,7 +135,7 @@ class ClassLoader {
 	/**
 	 * Look up word mnemonic instruction from bytecode instruction.
 	*/
-	string lookupMnemonicInstruction(auto bytecode) {
+	string lookupMnemonicInstruction(int bytecode) {
 		return "instruction"; // TODO
 	}
 
@@ -343,7 +343,25 @@ class ClassLoader {
 	 void setInterfacesCount() {
 	 	int cpsize = cf.getCPSIZE();
 	 	int interfacesCount = classContents.at(cpsize + 16) + classContents.at(cpsize + 17);
+	 	cf.setStartByte(18);
 	 	cf.setInterfacesCount(interfacesCount);
+	 }
+
+	 /**
+	  * Set interfaces to interfaces table.
+	 */
+	 void pushInterfaces() {
+	 	int cpsize = cf.getCPSIZE();
+	 	int x = cf.getStartByte();
+	 	int interfacesCount = cf.getInterfacesCount();
+	 	if(interfacesCount > 0) {
+	 		for(int i = 0; i < interfacesCount; ++i) {
+	 			int interface = classContents.at(cpsize + x) + classContents.at(cpsize + (x + 1));
+	 			cf.pushInterface(interface);
+	 			++x;
+	 		}
+	 		cf.setStartByte(x + 1);
+	 	}
 	 }
 
 	 /**
@@ -351,8 +369,27 @@ class ClassLoader {
 	 */
 	 void setFieldsCount() {
 	 	int cpsize = cf.getCPSIZE();
-	 	int fieldsCount = classContents.at(cpsize + 18) + classContents.at(cpsize + 19);
+	 	int x = cf.getStartByte();
+	 	int fieldsCount = classContents.at(cpsize + x) + classContents.at(cpsize + (x + 1));
+	 	cf.setStartByte(x + 2);
 	 	cf.setFieldsCount(fieldsCount);
+	 }
+
+	 /**
+	  * Push any fields to fields table.
+	 */
+	 void pushFields() {
+	 	int cpsize = cf.getCPSIZE();
+	 	int x = cf.getStartByte();
+	 	int fieldsCount = cf.getFieldsCount();
+	 	if(fieldsCount > 0) {
+	 		for(int i = 0; i < fieldsCount; ++i) {
+	 			int field = classContents.at(cpsize + x) + classContents.at(cpsize + (x + 1));
+	 			cf.pushField(field);
+	 			++x;
+	 		}
+	 		cf.setStartByte(x + 1);
+	 	}
 	 }
 
 	 /**
@@ -360,8 +397,27 @@ class ClassLoader {
 	 */
 	 void setMethodsCount() {
 	 	int cpsize = cf.getCPSIZE();
-	 	int methodsCount = classContents.at(cpsize + 20) + classContents.at(cpsize + 21);
+	 	int x = cf.getStartByte();
+	 	int methodsCount = classContents.at(cpsize + x) + classContents.at(cpsize + (x + 1));
+	 	cf.setStartByte(x + 2);
 	 	cf.setMethodsCount(methodsCount);
+	 }
+
+	 /**
+	  * Push any methods to methods table.
+	 */
+	 void pushMethods() {
+	 	int cpsize = cf.getCPSIZE();
+	 	int x = cf.getStartByte();
+	 	int methodsCount = cf.getMethodsCount();
+	 	/*if(methodsCount > 0) {
+	 		for(int i = 0; i < methodsCount; ++i) {
+	 			int method = classContents.at(cpsize + x) + classContents.at(cpsize + (x + 1));
+	 			cf.pushMethod(method);
+	 			++x;
+	 		}
+	 		cf.setStartByte(x + 1);
+	 	}*/
 	 }
 
 	 /**
@@ -369,8 +425,55 @@ class ClassLoader {
 	 */
 	 void setAttributesCount() {
 	 	int cpsize = cf.getCPSIZE();
-	 	int attribCount = classContents.at(cpsize + 22) + classContents.at(cpsize + 23);
-	 	cf.setAttributesCount(attribCount);	 	
+	 	int x = cf.getStartByte();
+	 	int attribsCount = classContents.at(cpsize + x) + classContents.at(cpsize + (x + 1));
+	 	cf.setStartByte(x + 2);
+	 	cf.setAttributesCount(attribsCount);	 	
+	 }
+
+	 /**
+	  * Push any attributes to attributes table.
+	 */
+	 void pushAttributes() {
+	 	int cpsize = cf.getCPSIZE();
+	 	int x = cf.getStartByte();
+	 	/*int attribsCount = cf.getAttributesCount();
+	 	if(attribsCount > 0) {
+	 		for(int i = 0; i < attribsCount; ++i) {
+	 			int attribute = classContents.at(cpsize + x) + classContents.at(cpsize + (x + 1));
+	 			cf.pushAttribute(attribute);
+	 			++x;
+	 		}
+	 		cf.setStartByte(x + 20);
+	 	}*/
+	 }
+
+	 /**
+	  * Set bytecodes count. 
+	 */
+	 void setBytecodesCount() {
+	  	int cpsize = cf.getCPSIZE();
+	  	int x = cf.getStartByte();
+	  	int bytecodesCount = classContents.at(cpsize + x) + classContents.at(cpsize + (x + 1));
+	  	cf.setStartByte(x + 20);
+	  	cf.setBytecodesCount(bytecodesCount);
+	  }
+
+	 /**
+	  * Push bytecodes to bytecodes table.
+	 */
+	 void pushBytecodes() {
+	 	int cpsize = cf.getCPSIZE();
+	 	int x = cf.getStartByte();
+	 	int bytecodesCount = cf.getBytecodesCount();
+	 	if(bytecodesCount > 0) {
+	 		for(int i = 0; i < bytecodesCount; ++i) {
+	 			int bytecode = classContents.at(cpsize + x) + classContents.at(cpsize + (x + 1)); 
+	 			cf.pushBytecode(bytecode);
+	 			++x;
+	 		}
+	 	}
+	 	cf.setStartByte(x);
 	 }
 
 public:
@@ -411,11 +514,18 @@ public:
 			setThisClass();
 			setSuperClass();
 			setInterfacesCount();
+			pushInterfaces();
 			setFieldsCount();
+			pushFields();
 			setMethodsCount();
+			pushMethods();
 			setAttributesCount();
+			pushAttributes();
+			setBytecodesCount();
+			pushBytecodes();
 
 			// ***********************************************************************
+			cout << "CP_COUNT = " << cf.getCPCOUNT() << endl;
 			cout << "CP_SIZE = " << cf.getCPSIZE() << endl;
 
 			cout << "Access flags: " << hex << cf.getAccessFlags() << endl;
@@ -425,6 +535,13 @@ public:
 			cout << "Fields count: " << cf.getFieldsCount() << endl;
 			cout << "Methods count: " << cf.getMethodsCount() << endl;
 			cout << "Attributes count: " << cf.getAttributesCount() << endl;
+			cout << "Bytecodes count: " << cf.getBytecodesCount() << endl;
+
+			cout << "\nBytecodes: " << endl << endl;
+			vector<int> bytecodes = cf.pullBytecodes();
+			for(int i = 0; i < cf.getBytecodesCount(); ++i) {
+				cout << hex << bytecodes.at(i) << endl;
+			}
 			// ***********************************************************************
 		}
 		else {
