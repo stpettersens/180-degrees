@@ -2,7 +2,7 @@
 
 /*
 
-The "VM" - a front end to the classloader.
+ClassLoader for "VM" front end.
 Ported from C++ to Java.
 
 Copyright 2015 Sam Saint-Pettersen
@@ -11,7 +11,6 @@ Released under the MIT/X11 License.
 Please see LICENSE file.
 
 */
-
 import java.util.ArrayList;
 import java.io.FileInputStream;
 import java.io.IOException;

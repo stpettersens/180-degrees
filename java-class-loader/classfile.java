@@ -1,16 +1,15 @@
 //package
 
 /*
-
-The "VM" - a front end to the classloader.
+ClassFile class for ClassLoader.
 Ported from C++ to Java.
 
 Copyright 2015 Sam Saint-Pettersen
 
 Released under the MIT/X11 License.
 Please see LICENSE file.
-
 */
+
 
 import java.util.ArrayList;
 
