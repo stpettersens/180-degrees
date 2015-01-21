@@ -31,9 +31,14 @@ class ClassLoader {
 
 			var file = File.getBytes(the_class);
 			var sbytes: String = file.toHex();
-			for(byte in sbytes.split("")) {
-				bytes.push(byte);
-			}
+			var hexregx = ~/[0-9A-F]{2}/gi;
+			hexregx.match(sbytes);
+			trace(hexregx.matched(1));
+			//var i: Int = 1;
+			//while(i < 5) {
+				//bytes.push(hexregx.matched(i));
+				//++i;
+			//}
 		}
 		else {
 			Lib.println('\nCannot open file: $the_class');
@@ -49,8 +54,8 @@ class ClassLoader {
 	function setClassSection(start: Int, end: Int, base: Int): String {
 		var fvalue: String = "";
 		var value: Array<String> = [];
-		var i: Int = start * 2;
-		while(i < end * 2) {
+		var i: Int = start;
+		while(i < end ) {
 			value.push(classContents[i]);
 			++i;
 		}
