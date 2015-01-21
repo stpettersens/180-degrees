@@ -231,6 +231,8 @@ class ClassLoader {
 
 	 	for(int i = n; i < y; ++i) {
 
+	 		cout << (int)classContents.at(i) << endl;
+
 	 		string tag = cf.getTag((int)classContents.at(i));
 	 		vector<string> object;
 

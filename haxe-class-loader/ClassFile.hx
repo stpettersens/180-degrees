@@ -16,7 +16,7 @@ import cpp.Lib;
 
 class ClassFile {
 
-	var magic: Int;
+	var magic: String;
 	var minor_version: Int;
 	var major_version: Int;
 	var constant_pool_count: Int;
@@ -39,7 +39,7 @@ class ClassFile {
 	var tags: Array<String>;
 
 	public function new() { // Constructor for ClassFile.
-		magic = 0;
+		magic = "";
 		minor_version = 0;
 		major_version = 0;
 		constant_pool_count = 0;
@@ -67,15 +67,15 @@ class ClassFile {
 		tags[11] = "NameAndType";
 	}
 
-	public function setMagicNumber(magicNum: Int): Void {
+	public function setMagicNumber(magicNum: String): Void {
 		magic = magicNum;
 	}
-	public function getMagicNumber(): Int {
+	public function getMagicNumber(): String {
 		return magic;
 	}
 	public function checkMagicNumber(): Bool {
 		var isMagic: Bool = false;
-		if(magic == 0xCAFEBABE) isMagic = true;
+		if(magic == "cafebabe") isMagic = true;
 		return isMagic;
 	}
 	public function setMinorVersion(minorVer: Int): Void {
