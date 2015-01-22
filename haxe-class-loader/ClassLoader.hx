@@ -31,14 +31,19 @@ class ClassLoader {
 
 			var file = File.getBytes(the_class);
 			var sbytes: String = file.toHex();
-			var hexregx = ~/[0-9A-F]{2}/gi;
-			hexregx.match(sbytes);
-			trace(hexregx.matched(1));
-			//var i: Int = 1;
-			//while(i < 5) {
-				//bytes.push(hexregx.matched(i));
-				//++i;
-			//}
+			var hex: String = "";  
+			var i: Int = 1;
+			while(i <= sbytes.length / 2) {
+				hex += "([0-9a-f]{2})"; // Match a hexadecimal notated byte.
+				++i;
+			}
+			var hexr = new EReg(hex, "i");
+			hexr.match(sbytes);
+			i = 1;
+			while(i <= sbytes.length / 2) {
+				bytes.push(hexr.matched(i));
+				++i;
+			}
 		}
 		else {
 			Lib.println('\nCannot open file: $the_class');
@@ -67,6 +72,24 @@ class ClassLoader {
 			fvalue = '0x$value';
 		}
 		return fvalue;
+	}
+
+	/**
+	 * Set and return a constant pool array.
+	*/
+	function setConstantPoolArray(tag: String, data1: String, data2: String): Array<String> {
+		var array: Array<String> = [];
+		if(data2 == "") {
+			array.push(tag);
+			array.push(data1);
+		}
+		else {
+			array.push(tag);
+			array.push('$data1,$data2');
+		}
+		Lib.println("tag: " + array[0]);
+		Lib.println(">>> " + array[1] + "\n");
+		return array;
 	}
 
 	/**
@@ -109,11 +132,37 @@ class ClassLoader {
 		var x: Int = 1;
 		var y: Int = cf.getCPCOUNT() * 9;
 
-		while(n < y) {
-			var cc = Std.parseInt(classContents[n] + classContents[n+1]);
-			trace(cc);
-			++n;
+		var i: Int = n;
+		while(i < y) {
+
+			var cc: Int = Std.parseInt('0x' + classContents[i]);
+			var tag: String = cf.getTag(cc);
+			var object: Array<String> = [];
+
+			switch tag {
+
+				case "Methodref":
+					var byte1: Int = Std.parseInt('0x' + classContents[i+2]);
+					var byte2: Int = Std.parseInt('0x' + classContents[i+4]);
+					classContents[i+2] = "0";
+					classContents[i+4] = "0";
+					object = [];
+					object = setConstantPoolArray(tag, Std.string(byte1), Std.string(byte2));
+					cf.setCPSIZE(5, "Methodref");
+
+				case "Class":
+					object = [];
+					var byte1: Int = Std.parseInt('0x' + classContents[i+2]);
+					object = setConstantPoolArray(tag, Std.string(byte1), "");
+					classContents[i+2] = "0";
+					cf.setCPSIZE(3, "Class");
+
+				case "Integer":
+					var integer: Int = Std.parseInt('0xA');
+			}
+			++i;
 		}
+
 	}
 
 	/**
@@ -148,7 +197,7 @@ class ClassLoader {
 			Lib.println('Minor version = $minorVer');
 
 			var majorVer: Int = cf.getMajorVersion();
-			Lib.println('Major version = $majorVer');
+			Lib.println('Major version = $majorVer\n');
 			// **************************************************************
 
 			setConstantPoolCount();

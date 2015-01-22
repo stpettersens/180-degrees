@@ -63,8 +63,9 @@ class ClassFile {
 		tags[7] = "Class";
 		tags[8] = "String";
 		tags[9] = "Fieldref";
-		tags[10] = "InterfaceMethodref";
-		tags[11] = "NameAndType";
+		tags[10] = "Methodref";
+		tags[11] = "InterfaceMethodref";
+		tags[12] = "NameAndType";
 	}
 
 	public function setMagicNumber(magicNum: String): Void {
