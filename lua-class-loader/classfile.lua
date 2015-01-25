@@ -89,7 +89,7 @@ function ClassFile:pushToConstantPool(constValPair)
 end
 
 function ClassFile:setCPSIZE(tagSize, _type)
-	print('+ ' .. tagSize .. '( ' .. _type .. ')') --!
+	print(string.format('+ %d (%s)', tagSize, type)) --!
 	table.insert(self.cp_size, tagSize)
 end
 
