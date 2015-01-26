@@ -33,7 +33,7 @@ function ClassFile.create()
 	self.attributes = {}
 	self.bytecodes_count = 0
 	self.bytecodes = {}
-	self.tags = { 'Null', 'Utf8', 'Integer', 'Float', 'Long', 'Double' }
+	self.tags = { 'Utf8', 'Null', 'Integer', 'Float', 'Long', 'Double' }
 	table.insert(self.tags, 'Class')
 	table.insert(self.tags, 'String') 
 	table.insert(self.tags, 'Fieldref')
@@ -76,7 +76,7 @@ function ClassFile:getMajorVersion()
 	return self.major_version
 end
 
-function ClassFile:setCosntantPoolCount(cpCount)
+function ClassFile:setConstantPoolCount(cpCount)
 	self.constant_pool_count = cpCount
 end
 
@@ -89,7 +89,7 @@ function ClassFile:pushToConstantPool(constValPair)
 end
 
 function ClassFile:setCPSIZE(tagSize, _type)
-	print(string.format('+ %d (%s)', tagSize, type)) --!
+	print(string.format('+ %d (%s)\n', tagSize, _type)) --!
 	table.insert(self.cp_size, tagSize)
 end
 
@@ -212,7 +212,7 @@ end
 function ClassFile:getTag(index)
 	local rtag = 'Null'
 	if index ~= 0 or index ~= 2 or index <= 12 or index > 0 then
-		rtag = tags[index]
+		rtag = self.tags[index]
 	end
 	return rtag
 end
