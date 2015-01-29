@@ -181,12 +181,8 @@ class ClassLoader {
 		string value = "";
 		int z = 2;
 		for(int j = 0; j < length; ++j) {
-			cout << "j is " << j << endl;
-			cout << "z is " << z << endl;
-			cout << "i is " << i << endl;
-			cout << "i + z is " << i+z << endl;
+
 			USHORT _byte = (USHORT)classContents.at(i+z);
-			cout << "byte is " << _byte << endl;
 			if(_byte >= 1 && _byte < 11 && _byte != 2) {
 				break;	
 			}
@@ -235,7 +231,6 @@ class ClassLoader {
 	 	int y = cf.getCPCOUNT() * 9;
 
 	 	for(int i = n; i < y; ++i) {
-	 		cout << "First i = " << i << endl;
 	 		string tag = cf.getTag((int)classContents.at(i));
 	 		vector<string> object;
 
@@ -255,7 +250,7 @@ class ClassLoader {
 	 			cf.setCPSIZE(3, "Class");
 	 		}
 	 		else if(strcmp(tag.c_str(), "Integer") == 0) {
-	 			cout << "i is " << i << endl;
+	 			
 	 			int integer = stoi(getHexadecimalValue(i, 4), 0, 16);
 
 	 			// *************************************************************

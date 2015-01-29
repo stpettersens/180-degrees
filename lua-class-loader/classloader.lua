@@ -36,7 +36,7 @@ function ClassLoader:load(class, dump)
 		-- *****************************************************************************
 		local magic = self.cf:getMagicNumber()
 		local hmagic = string.format('%02X', magic)
-		print(string.format('\nMagic number (hex = %s) (dec: %d)', hmagic, magic))
+		print(string.format('\nMagic number (hex) = %s (dec: %d)', hmagic, magic))
 		-- *****************************************************************************
 
 		self:setMinorVersion()
@@ -192,20 +192,9 @@ function ClassLoader:getHexadecimalValue(i, length)
 	local value = ''
 	local z = 2
 	local j = 1
-	while j < length + 1 do
-		print('j is ' .. j)
-		print('z is ' .. z)
-		print('i is ' .. i)
-		print('i + z is ' .. i+z)
-		local fuckme = tonumber(tostring(self.classContents[i+z]), 16)
-		print('byte is ' .. fuckme)
-		--if byte >= 1 and byte < 11 and byte ~= 2 then
-			--break
-		--end
-		s = string.format('%02X', fuckme)
-		print(s)
-		table.insert(self.classContents, i+z, 0)
-		value = value .. s
+	while j < length do
+		local bb = tonumber(tostring(self.classContents[i+z]), 16)
+		value = value .. string.format('%02X', bb)
 		z = z + 1
 		j = j + 1
 	end
@@ -219,14 +208,10 @@ function ClassLoader:getHexadecimalValues(i, length)
 	local values = {}
 	local z = 2
 	local j = 0
-	while j < length do
-		byte = tonumber(self.classContents[i+z], 16)
-		if byte >= 1 and byte < 11 and byte ~= 2 then
-			break
-		end
-		s = string.format('%02X', byte)
-		table.insert(self.classContents, i+z, 0)
-		table.insert(values, s)
+	while j <= length do
+		local bb  = tonumber(self.classContents[i+z], 16)
+		local value = string.format('%02X', bb)
+		table.insert(values, value)
 		z = z + 1
 		j = j + 1
 	end
@@ -240,11 +225,11 @@ function ClassLoader:setConstantPoolTable()
 	local constPoolTable = {}
 	local n = 10
 	local x = 1
-	local y = self.cf:getCPCOUNT() * 9
+	local y = self.cf:getCPCOUNT() * 12
 	
 	local i = n
 	while(i < y) do
-		print('First i = ' .. i)
+
 		local tag = self.cf:getTag(tonumber(tostring(self.classContents[i]), 16))
 		local object = {}
 
@@ -253,12 +238,14 @@ function ClassLoader:setConstantPoolTable()
 			local byte2 = tonumber(self.classContents[i+4], 16)
 			table.insert(self.classContents, i+2, 0) -- Set byte to 0 to prevent re-read of byte.
 			table.insert(self.classContents, i+4, 0)
-			table.insert(object, 1, self:setConstantPoolArray(tag, tostring(byte1), tostring(byte2)))
+			object = {}
+			object = self:setConstantPoolArray(tag, tostring(byte1), tostring(byte2))
 			self.cf:setCPSIZE(5, 'Methodref')
 
 		elseif tag == 'Class' then
 			local byte1 = tonumber(self.classContents[i+2], 16)
-			table.insert(object, 1, self:setConstantPoolArray(tag, tostring(byte1), nil))
+			object = {}
+			object = self:setConstantPoolArray(tag, tostring(byte1), nil)
 			table.insert(self.classContents, i+2, 0)
 			self.cf:setCPSIZE(3, 'Class')
 
@@ -270,50 +257,53 @@ function ClassLoader:setConstantPoolTable()
 			print(string.format('Integer is: %d (hex: %s)\n\n', integer, hinteger))
 			-- ************************************************************************
 
-			--local r = 1
-			--while r < 4 do 
-				--table.insert(self.classContents, i+r, 0) 
-			 	--r = r + 1
-			--end
+			local r = 1
+			while r < 4 do 
+				table.insert(self.classContents, i+r, 0) 
+			 	r = r + 1
+			end
 
-			--table.insert(object, 1, self:setConstantPoolArray(tag, tostring(integer), nil))
-			--self.cf:setCPSIZE(5, 'Integer')
+			object = {}
+			object = self:setConstantPoolArray(tag, tostring(integer), nil)
+			self.cf:setCPSIZE(5, 'Integer')
 
 		elseif tag == 'String' then
-			--local byte1 = tonumber(self.classContents[i+2], 16)
-			--table.insert(object, 1, self:setConstantPoolArray(tag, tostring(byte1), nil))
+			local byte1 = tonumber(self.classContents[i+2], 16)
+			object = {}
+			object = self:setConstantPoolArray(tag, tostring(byte1), nil)
 			self.cf:setCPSIZE(3, 'String')
 
 		elseif tag == 'NameAndType' then
-			--local byte1 = tonumber(self.classContents[i+2], 16)
-			--local byte2 = tonumber(self.classContents[i+2], 16)
-			--table.insert(object, 1, self:setConstantPoolArray(tag, tostring(byte1), tostring(byte2)))
+			local byte1 = tonumber(self.classContents[i+2], 16)
+			local byte2 = tonumber(self.classContents[i+4], 16)
+			object = {}
+			object = self:setConstantPoolArray(tag, tostring(byte1), tostring(byte2))
 			self.cf:setCPSIZE(5, 'NameAndType')
 
 		elseif tag == 'Utf8' then
-			--local utf8ByteLength = 3
-			--local size = tonumber(self.classContents[i+2], 16)
+			local utf8ByteLength = 3
+			local size = tonumber(self.classContents[i+2], 16)
 
 			-- ***********************************************************
-			--print(string.format('Declared UTF-8 size = %d\n', size))
+			print(string.format('Declared UTF-8 size = %d\n', size))
 			-- ***********************************************************
 
-			--table.insert(self.classContents, i+2, 0)
-			--local values = getHexadecimalValues(i+1, size)
-			--local utf8 = ''
-			--local z = 1
-			--while(z < #values) do
-				--local utf8int = tonumber(values[z], 16)
-				--utf8 = utf8 .. self:getUTF8Char(utf8int)
-				--utf8ByteLength = utf8ByteLength + 1
-				--z = z + 1
-			--end
+			table.insert(self.classContents, i+2, 0)
+			local values = self:getHexadecimalValues(i+2, size)
+			local utf8 = ''
+			local z = 1
+			while(z < #values) do
+				local utf8int = tonumber(values[z], 16)
+				utf8 = utf8 .. self:getUTF8Char(utf8int)
+				utf8ByteLength = utf8ByteLength + 1
+				z = z + 1
+			end
 
-			--if #utf8 > 2 then
-				--print(string.format('Utf-8 length: %d\n', utf8ByteLength))
-				--table.insert(object, 1, self:setConstantPoolArray(tag, utf8, nil))
-				--self.cf:setCPSIZE(utf8ByteLength, 'Utf8')
-			--end
+			if #utf8 > 2 then
+				print(string.format('Utf-8 length: %d\n', utf8ByteLength))
+				table.insert(object, 1, self:setConstantPoolArray(tag, utf8, nil))
+				self.cf:setCPSIZE(utf8ByteLength, 'Utf8')
+			end
 		end
 		i = i + 1
 	end
