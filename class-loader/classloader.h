@@ -231,6 +231,9 @@ class ClassLoader {
 	 	int y = cf.getCPCOUNT() * 9;
 
 	 	for(int i = n; i < y; ++i) {
+
+	 		cout << hex << (int)classContents.at(i) << endl;
+
 	 		string tag = cf.getTag((int)classContents.at(i));
 	 		vector<string> object;
 
@@ -249,7 +252,7 @@ class ClassLoader {
 	 			classContents.at(i+2) = 0;
 	 			cf.setCPSIZE(3, "Class");
 	 		}
-	 		else if(strcmp(tag.c_str(), "Integer") == 0) {
+	 		else if(tag.compare("Integer") == 0) {
 	 			
 	 			int integer = stoi(getHexadecimalValue(i, 4), 0, 16);
 

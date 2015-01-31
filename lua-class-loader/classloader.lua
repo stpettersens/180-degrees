@@ -225,10 +225,12 @@ function ClassLoader:setConstantPoolTable()
 	local constPoolTable = {}
 	local n = 10
 	local x = 1
-	local y = self.cf:getCPCOUNT() * 12
+	local y = self.cf:getCPCOUNT() * 11
 	
 	local i = n
 	while(i < y) do
+
+		print(self.classContents[i])
 
 		local tag = self.cf:getTag(tonumber(tostring(self.classContents[i]), 16))
 		local object = {}
@@ -254,11 +256,11 @@ function ClassLoader:setConstantPoolTable()
 
 			-- ************************************************************************
 			local hinteger = string.format('%02X', integer)
-			print(string.format('Integer is: %d (hex: %s)\n\n', integer, hinteger))
+			print(string.format('Integer is: %d (hex: %s)\n', integer, hinteger))
 			-- ************************************************************************
 
 			local r = 1
-			while r < 4 do 
+			while r <= 4 do 
 				table.insert(self.classContents, i+r, 0) 
 			 	r = r + 1
 			end
@@ -285,7 +287,7 @@ function ClassLoader:setConstantPoolTable()
 			local size = tonumber(self.classContents[i+2], 16)
 
 			-- ***********************************************************
-			print(string.format('Declared UTF-8 size = %d\n', size))
+			print(string.format('Declared UTF-8 size = %d', size))
 			-- ***********************************************************
 
 			table.insert(self.classContents, i+2, 0)
@@ -300,8 +302,9 @@ function ClassLoader:setConstantPoolTable()
 			end
 
 			if #utf8 > 2 then
-				print(string.format('Utf-8 length: %d\n', utf8ByteLength))
-				table.insert(object, 1, self:setConstantPoolArray(tag, utf8, nil))
+				print(string.format('Utf-8 length: %d', utf8ByteLength))
+				object = {}
+				object = self:setConstantPoolArray(tag, utf8, nil)
 				self.cf:setCPSIZE(utf8ByteLength, 'Utf8')
 			end
 		end
