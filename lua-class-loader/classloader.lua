@@ -230,8 +230,6 @@ function ClassLoader:setConstantPoolTable()
 	local i = n
 	while(i < y) do
 
-		print(self.classContents[i])
-
 		local tag = self.cf:getTag(tonumber(tostring(self.classContents[i]), 16))
 		local object = {}
 

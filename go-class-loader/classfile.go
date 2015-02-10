@@ -15,8 +15,8 @@ import "fmt"
 
 type ClassFile struct {
 	magic uint32
-	minor_version byte
-	major_version byte
+	minor_version uint16
+	major_version uint16
 	constant_pool_count uint16
 	constant_pool []ConstantValuePair
 	cp_size []uint16
@@ -64,16 +64,16 @@ func (cf *ClassFile) checkMagicNumber() (bool) {
 	}
 	return isMagic
 }
-func (cf *ClassFile) setMinorVersion(minorVer byte) {
+func (cf *ClassFile) setMinorVersion(minorVer uint16) {
 	cf.minor_version = minorVer
 }
-func (cf *ClassFile) getMinorVersion() (byte) {
+func (cf *ClassFile) getMinorVersion() (uint16) {
 	return cf.minor_version
 }
-func (cf *ClassFile) setMajorVersion(majorVer byte) {
+func (cf *ClassFile) setMajorVersion(majorVer uint16) {
 	cf.major_version = majorVer
 }
-func (cf *ClassFile) getMajorVersion() (byte) {
+func (cf *ClassFile) getMajorVersion() (uint16) {
 	return cf.major_version
 }
 func (cf *ClassFile) setConstantPoolCount(cpCount uint16) {

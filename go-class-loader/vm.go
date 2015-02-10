@@ -19,6 +19,7 @@ import (
 func displayVersion() {
 	var VM_VERSION string = "1.0"
 	fmt.Println(fmt.Sprintf("Java \"VM\" v. %v", VM_VERSION))
+	os.Exit(0)
 }
 
 func loadClassFile(class string, dump bool) {
